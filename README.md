@@ -1,4 +1,4 @@
-# saas-product-demo-video
+# SaaS Product Demo Video with Claude and Remotion
 
 A Claude Code skill that produces a 20-45 second SaaS product demo video in [Remotion](https://www.remotion.dev/). End-to-end: asset intake, beat detection from the soundtrack, schematic UI mockups when the product has no real UI to film, scene composition, and final render.
 
@@ -6,7 +6,7 @@ I built this for a project, then improved it while using it for another one (the
 
 ## What you get
 
-- A structured asset-intake questionnaire that prevents the generic-Canva look from the start
+- A structured asset-intake questionnaire that pulls every brand specific upfront (logo, fonts, colors, soundtrack, copy, references) before a single scene gets composed - so the result feels brand-specific instead of template-y
 - A reference-video analysis flow that pulls directorial vocabulary from YouTube clips you point at (push-through, whip-pan, V-cut pull-back, match-cut zoom)
 - librosa-powered beat detection from your soundtrack
 - Snare-locked scene boundaries plus a one-pass aligner for in-scene events (the single highest-leverage iteration after the first render)
