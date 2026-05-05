@@ -1,0 +1,14 @@
+# Built skill archive (regenerate via ./build.sh)
+*.skill
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+
+# Local env
+.env
+.env.local
+
+# Internal session prompts (never publish)
+.publishing-prompt*
