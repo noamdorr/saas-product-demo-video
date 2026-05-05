@@ -8,7 +8,7 @@ It's packaged as a Claude Code skill (that's where it's been used in production)
 
 ## What you get
 
-- A structured asset-intake questionnaire that pulls every brand specific upfront (logo, fonts, colors, soundtrack, copy, references) before a single scene gets composed - so the result feels brand-specific instead of template-y
+- A structured asset-intake questionnaire that pulls all the brand specifics upfront (logo, fonts, colors, soundtrack, copy, references) before a single scene gets composed - so what you ship feels yours, not template-y
 - A reference-video analysis flow that pulls directorial vocabulary from YouTube clips you point at (push-through, whip-pan, V-cut pull-back, match-cut zoom)
 - librosa-powered beat detection from your soundtrack
 - Snare-locked scene boundaries plus a one-pass aligner for in-scene events (the single highest-leverage iteration after the first render)
@@ -100,7 +100,7 @@ Claude:
   - Renders the final HD MP4 + thumbnail
 ```
 
-In practice you land a polished video in roughly 60-120 minutes of Claude wallclock time, broken across however many sessions you want. The slow part isn't slow because it's hard - it's slow because you'll iterate on Scene 1 a few times to lock the style before greenlighting the rest.
+In practice you land a polished video in roughly 60-120 minutes of Claude wallclock time, broken across however many sessions you want. Most of those minutes go into iterating on Scene 1 until the style feels right - once it locks, the rest of the scenes inherit the same vocabulary and finish fast.
 
 ## What's inside the skill
 
