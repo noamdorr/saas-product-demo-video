@@ -2,9 +2,7 @@
 
 A skill for producing a 20-45 second SaaS product demo video in [Remotion](https://www.remotion.dev/). End-to-end: asset intake, beat detection from the soundtrack, schematic UI mockups when the product has no real UI to film, scene composition, and final render.
 
-I built this for a project, then improved it while using it for another one (the [Reechee demo](#example-output)). It's opinionated about three things - assets, vibe, beats - and every other rule has a documented fallback. Works without the Super Powers plugin, works without a Gemini API key, works whether your product has a real UI or not.
-
-It's packaged as a Claude Code skill (that's where it's been used in production), but the methodology is LLM-agnostic. The questionnaire, the references, the Python + bash scripts, the React/Remotion code templates - all just markdown and code. If you're using Codex, Cursor, Aider, or a plain chat, clone the repo and point your agent at `saas-product-demo-video/SKILL.md`. You lose the auto-trigger and the Super Powers integration (both of which have documented fallbacks anyway), but everything else works.
+It's packaged as a Claude Code skill (that's where it's been used in production), but the methodology is LLM-agnostic. The questionnaire, the references, the Python + bash scripts, the React/Remotion code templates - all just markdown and code.
 
 ## What you get
 
@@ -39,8 +37,6 @@ The skill renders MP4s suitable for LinkedIn, YouTube, or homepage hero embeds. 
   1. [`gemini` CLI](https://ai.google.dev/gemini-api/docs/quickstart) on PATH (or a community wrapper like `gemini-yt`) - one-liner wrap
   2. `GEMINI_API_KEY` set in env - use the bundled curl wrapper
   3. None of the above - fall back to manual [Google AI Studio](https://aistudio.google.com/) copy-paste
-
-The third path exists because I wanted this to actually be runnable for someone without a paid Gemini setup. It's awkward but the output quality is comparable.
 
 ## Install
 
