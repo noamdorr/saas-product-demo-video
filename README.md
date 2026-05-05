@@ -1,8 +1,10 @@
-# SaaS Product Demo Video with Claude and Remotion
+# SaaS Product Demo Video Skill for Remotion
 
-A Claude Code skill that produces a 20-45 second SaaS product demo video in [Remotion](https://www.remotion.dev/). End-to-end: asset intake, beat detection from the soundtrack, schematic UI mockups when the product has no real UI to film, scene composition, and final render.
+A skill for producing a 20-45 second SaaS product demo video in [Remotion](https://www.remotion.dev/). End-to-end: asset intake, beat detection from the soundtrack, schematic UI mockups when the product has no real UI to film, scene composition, and final render.
 
 I built this for a project, then improved it while using it for another one (the [Reechee demo](#example-output)). It's opinionated about three things - assets, vibe, beats - and every other rule has a documented fallback. Works without the Super Powers plugin, works without a Gemini API key, works whether your product has a real UI or not.
+
+It's packaged as a Claude Code skill (that's where it's been used in production), but the methodology is LLM-agnostic. The questionnaire, the references, the Python + bash scripts, the React/Remotion code templates - all just markdown and code. If you're using Codex, Cursor, Aider, or a plain chat, clone the repo and point your agent at `saas-product-demo-video/SKILL.md`. You lose the auto-trigger and the Super Powers integration (both of which have documented fallbacks anyway), but everything else works.
 
 ## What you get
 
@@ -25,8 +27,8 @@ The skill renders MP4s suitable for LinkedIn, YouTube, or homepage hero embeds. 
 
 ## Prerequisites
 
-- macOS or Linux with [Node.js](https://nodejs.org/) 18+ and [Python 3](https://www.python.org/)
-- [Claude Code](https://claude.ai/claude-code) installed
+- [Node.js](https://nodejs.org/) 18+ and [Python 3](https://www.python.org/) - macOS, Linux, or Windows (on Windows, the two bash scripts need [WSL](https://learn.microsoft.com/en-us/windows/wsl/) or [Git Bash](https://git-scm.com/downloads); the Python and Node parts run natively)
+- An LLM coding agent - [Claude Code](https://claude.ai/claude-code) gives you the auto-trigger and Super Powers integration; Codex / Cursor / Aider / others work too if you point them at `SKILL.md` directly
 - [Remotion](https://www.remotion.dev/) 4.x dependencies (the skill scaffolds these for you, no manual setup)
 - Python [`librosa`](https://librosa.org/) for beat detection (the skill walks you through `pip install` if it's missing)
 
@@ -43,6 +45,8 @@ The third path exists because I wanted this to actually be runnable for someone 
 ## Install
 
 The skill ships as a `.skill` archive (it's just a zip with a different extension). Drop it into your Claude Code plugins directory.
+
+> **Using a different agent?** Skip the `.skill` install and use **Option B** below. After cloning, point your agent at `saas-product-demo-video/SKILL.md` and it'll have the same content - the auto-trigger and Super Powers orchestration are the only things you'll miss.
 
 ### Option A - one-line install from the latest release
 
