@@ -1,6 +1,6 @@
 # Animation patterns
 
-The 8-10 primitive patterns that account for ~90% of what scenes need. Each has been proven in production and has a known-good code shape. Don't invent new primitives mid-build - compose these.
+The primitive patterns that account for most of what scenes need, plus the situational techniques that come up once you start polishing. Each has been proven in production and has a known-good code shape. Don't invent new primitives mid-build - compose these.
 
 ## TypedText - word-staggered type-on
 
@@ -395,6 +395,41 @@ const rand = (seed: number, k: number) => {
   return v - Math.floor(v) // 0..1, stable across frames
 }
 ```
+
+## Reveal a filled chart by clipping, not dashing
+
+To draw a filled area/line chart in, animate a `clipPath` rect's width (a left-to-right reveal) with a thin playhead at its leading edge. Cleaner than `stroke-dashoffset` for FILLED areas - dashoffset only animates the stroke, not the fill, so the shaded region under the line pops in all at once.
+
+```tsx
+<clipPath id="r"><rect width={progress * W} height={H} /></clipPath>
+<g clipPath="url(#r)">{/* area + line */}</g>
+<line x1={progress * W} x2={progress * W} y1={0} y2={H} /> {/* playhead at the edge */}
+```
+
+The playhead at the clip's leading edge sells the "drawing now" read; without it the reveal looks like a static wipe.
+
+## Kinetic text: mind the whitespace
+
+Word-by-word reveal means each word is an `inline-block` with a staggered spring. `inline-block` collapses the whitespace between words, so add a `marginRight` for the space - and drop it on the last word (and on centered lines) or the trailing space pushes the line off-center.
+
+```tsx
+marginRight: i === words.length - 1 ? 0 : "0.25em"
+```
+
+## Group the focal card with its caption
+
+Center a focal card and its caption as ONE vertical unit rather than card-pinned-top + caption-pinned-bottom, which ping-pongs the viewer's eye between the two anchors. Reserve the caption's slot with a `minHeight` so swapping caption lines does not reflow and jump the whole group.
+
+```tsx
+<div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+  <Card />
+  <div style={{ minHeight: CAPTION_SLOT }}>{caption}</div>
+</div>
+```
+
+## One persistent scrim, dissolve only the text
+
+For captions over busy footage, use ONE persistent readability band (scrim) and cross-dissolve only the text inside it. A per-caption scrim flickers on every swap as bands fade in and out over each other; a single held band keeps the contrast floor steady while the words change.
 
 ## Composing patterns - the rule
 

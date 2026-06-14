@@ -99,6 +99,12 @@ npx remotion still Act2Master out/thumbnail.png \
 - Pick a frame from the middle of Scene 1 or the start of Scene 2 - avoid motion-heavy frames that will blur in the still.
 - `--scale=2` gives a 4K poster. LinkedIn's preview cards compress it anyway, but the high-res source is handy for other uses.
 
+## Frame 0 is the autoplay poster
+
+The literal first frame is the thumbnail and poster most players show before playback - the still that sits under a paused or not-yet-autoplayed video. Never open on a blank fade-up: a fade-in from black or empty means frame 0 is a near-empty frame, so the poster the audience sees is a dead screen, and the file looks broken before it has played a frame. Make frame 0 a complete establishing image - the scene fully composed, type already legible - and let the motion come from within it (a counter ticking up, a card settling, a glow blooming) rather than from the whole frame materializing out of nothing.
+
+(This is the thumbnail reason to keep full presence at frame 0; the beat-sync reason - that a fade-in has no transient to land on the first beat - is in `animation-patterns.md` -> "Beat-locked entrance: hard cut, not fade-in".)
+
 ## LinkedIn requirements
 
 LinkedIn compresses uploads heavily. To minimize re-compression damage:

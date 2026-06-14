@@ -1,6 +1,6 @@
 # Gotchas
 
-The twelve specific things that will eat 2+ hours each if you don't know about them.
+The specific things that will eat 2+ hours each if you don't know about them.
 
 ## 1. Composition ID underscores
 
@@ -107,6 +107,36 @@ In a **vertical layout** where space is precious, this can push the card past th
 Remotion renders frames independently and re-renders on resume, so `Math.random()`, `Date.now()`, and argless `new Date()` produce different values per frame (visible **flicker**) and break render caching/determinism.
 
 **Fix:** seed a deterministic hash by a stable index instead (see `animation-patterns.md` → "Deterministic variation (never Math.random)").
+
+## 15. CSS `animation:`/`transition:` are frozen in render
+
+CSS keyframe animations and transitions are wall-clock driven, so they look fine in the browser/Studio preview but sit dead at frame 0 in the deterministic renderer.
+
+**Fix:** re-drive any motion from `useCurrentFrame()` (interpolate/spring); audit imported or third-party/brand components before dropping them in - a mascot whose bob/breathe is pure CSS will freeze.
+
+## 16. SVG clips to its viewBox
+
+Art that animates outside the viewBox (a floating note, a glow, a sweeping playhead) is silently cut off with no error.
+
+**Fix:** `style={{ overflow: 'visible' }}` on the `<svg>`, or pad the viewBox.
+
+## 17. Absolute + inset child in a transform-only wrapper renders to nothing
+
+A `position: absolute; inset: 0` child needs a sized, positioned ancestor. Wrapping it in a transform/opacity-only `<div>` collapses that div to a zero-box, so the child vanishes or anchors to the wrong element - with no error (this is why a dashboard mock can render to blank).
+
+**Fix:** give the wrapper `position: absolute; inset: 0` (or an explicit size).
+
+## 18. No reliable DOM measurement during render
+
+`getBoundingClientRect` and similar reads are unstable frame to frame in the headless renderer.
+
+**Fix:** compute geometry from layout constants instead - a grid cell's x is `padLeft + col * (cellW + gap)`, not a measured rect.
+
+## 19. Remote images/audio are unreliable in render
+
+A URL in `<Img>` or `<Audio>` can stall or fail the headless renderer and is not deterministic.
+
+**Fix:** bundle assets into `public/` and load them with `staticFile()`.
 
 ## The meta-gotcha: Studio ≠ final render
 

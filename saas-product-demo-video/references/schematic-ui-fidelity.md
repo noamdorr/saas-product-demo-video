@@ -23,6 +23,14 @@ Concrete patterns:
 
 Never use the actual brand color, logo, or trademarked icon from the platform you're evoking. Either you'll get a takedown, or the scene reads as a real product screenshot and you've now mis-attributed credit.
 
+## Use the product's real strings and tokens
+
+The "adjacent but not exact" rule above is for platforms the product does *not* integrate. For the user's *own* product UI, the opposite applies: pull the real strings straight from the actual components - the exact status words, the precise ETA phrasing, the real column order - rather than inventing plausible-looking copy. Real strings read as "their product"; invented ones read as "a SaaS." A status that says "burns out ~Thursday" because that is what the app literally renders is worth more than a tidier-sounding label nobody on the team recognizes.
+
+Same for theme: import the app's design-token file (colors, fonts, radii) instead of hand-copying hex values into the schematic. The clip is then auto on-brand, and it stays in sync as the brand evolves - a palette change in the product propagates to the film for free, with no second source of truth to drift.
+
+(This is only for UI the product actually owns. For tools it does not integrate, keep the adjacent-but-not-exact rule above - evoke, never copy.)
+
 ## Components, not screenshots
 
 Build schematic UIs as React components, not as static images. Components let you:

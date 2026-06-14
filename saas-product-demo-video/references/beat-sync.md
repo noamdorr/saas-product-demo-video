@@ -109,6 +109,36 @@ const line2Frame = line1Frame + FRAMES_PER_BEAT;       // next beat, ~15 frames 
 
 And avoid the inverse - a text-less hold where a visual lands but its caption arrives seconds later. Start a caption as the thing it describes appears, not after. If the dashboard slams in on the swell, its label should be entering on that same beat, not a bar down the line once the audience has already moved on.
 
+## Don't duck the music under a synced hit
+
+If a visual is aligned to a musical hit, do NOT lower or duck the track at that exact frame "for drama." Ducking the bed on the frame you snapped to kills the beat you aligned to - the audience was about to feel the hit land, and the audio pulls out from under it instead. The synced frame is the one frame where the music must stay full.
+
+Keep the bed at full level (or briefly lift it) on the synced frame. If a duck is needed - to seat a voiceover line, to clear room before a swell - put it *elsewhere*, in the gaps between hits, and let it recover before the next aligned frame.
+
+```tsx
+// Duck for a VO phrase, but ramp back to full BEFORE the synced hit at `hitFrame`.
+// Never let the trough of the duck sit on `hitFrame`.
+volume={(f) =>
+  interpolate(
+    f,
+    [duckStart, duckStart + 6, hitFrame - 6, hitFrame],
+    [0.6, 0.35, 0.35, 0.6],
+    { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
+  )
+}
+```
+
+## Series frames are scene-local; map beats globally
+
+Inside a `<Series>`, each child's `useCurrentFrame()` resets to 0 at that child's start - the frame is scene-local, not global. Author scene-internal timings (a click 40 frames in, a card landing at 60) in local frames. But detected beats from `beats.json` are global master frames. Convert each beat from global to local before using it inside a child, or every beat-snapped event slides off by the scene's start offset - and nothing throws, so the drift is silent.
+
+```tsx
+// scene begins at global frame `scene.start`; a beat detected at global 323 ->
+const localBeat = 323 - scene.start
+```
+
+This is the same `localFrame = master - sceneStart` conversion as a `<Sequence>` (see "Converting scene-local ↔ master"), but the `<Series>` trap is sharper: children have no explicit `from` prop to remind you of the offset, so it's easy to treat a global beat as if it were local.
+
 ## The timing constants pattern
 
 One canonical object in `theme-v2.ts` (or `src/v2/theme-v2.ts`). Every `<Sequence>` in the master and every per-scene debug composition reads from this.
