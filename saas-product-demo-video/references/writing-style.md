@@ -46,6 +46,8 @@ Beyond punctuation, these phrasing tics signal AI authorship:
 - **Headlines structured "X without Y, Y without X."** ("Productivity without burnout.") This is everywhere; readers tune it out.
 - **Three-noun lists with the Oxford comma** in punchy display copy. ("Faster, smarter, and stronger." Drop the comma, drop the "and": "Faster. Smarter. Stronger." reads better.)
 - **"Get started in seconds" / "Built for teams of all sizes."** Generic SaaS scaffolding. Replace with something specific to the product.
+- **Don't repeat the subject.** Two consecutive sentences with the same grammatical subject read like a feature list, not a story. ("Acme watches your spend. Acme warns you before zero.") Vary the subject or shift POV - make the second line about the user: "Acme watches your spend. You'll know before zero."
+- **Name the subject; watch your pronouns.** An ambiguous "it" or "they" grabs the nearest salient noun, which is often the brand or the mascot rather than the thing you mean. Name the subject outright. ("...so it never goes quiet again" can read as a mascot going silent rather than the user's outreach.)
 
 ## Punctuation rules for on-screen text
 

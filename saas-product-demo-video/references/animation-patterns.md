@@ -340,6 +340,62 @@ Overlay SVG that animates a stroke-draw:
 
 The slight quadratic bezier curve on the path (Q and T commands) makes the underline feel hand-drawn rather than ruler-straight. `drawProgress` is 0→1 over 12-15 frames. Stagger with the word it's underlining so the marker arrives ~3 frames after the word finishes typing in.
 
+## Beat-locked entrance: hard cut, not fade-in
+
+An element that must LAND on a beat needs full presence at frame 0. A spring-from-0 (opacity 0→1 / scale 0.9→1) leaves the **cut frame blank**, so the beat lands on an empty screen and the impact arrives ~5 frames late. For burst/reveal moments, hard-cut at full opacity and add a quick scale punch-and-settle for energy - the hard cut IS the impact.
+
+```tsx
+// ❌ fades up from nothing - the cut frame (the beat) is blank
+const p = spring({ frame, fps, config: { damping: 13 } })
+style={{ opacity: p, transform: `scale(${interpolate(p, [0,1], [0.9,1])})` }}
+// ✅ full opacity on frame 0; a scale punch settles for the "burst"
+const punch = spring({ frame, fps, config: { damping: 12, mass: 0.5, stiffness: 130 } })
+style={{ transform: `scale(${interpolate(punch, [0,1], [0.94,1])})` }} // opacity stays 1
+```
+
+## Source → hero handoff (no ghost, no shrink)
+
+When a source element (a grid/marquee tile) hands off to a hero element that then flies/grows: at the handoff frame the hero must MATCH the source's footprint (width, height, AND screen position), HOLD still through a short crossfade, then start moving. A hero that is already moving/growing as it crossfades over the fading source produces an offset **double-card ghost**. If the hero's height is content-driven it can be shorter than the source → a visible **shrink**. Give the hero a fixed height (`boxSizing: 'border-box'`) + centered content (`justifyContent: 'center'`) so it matches the source and scales UNIFORMLY.
+
+```tsx
+const S0 = TILE_W / CARD_W               // start scale so hero width == source width
+const p = interpolate(frame, [HANDOFF + 5, MORPH_END], [0, 1], {
+  extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: Easing.inOut(Easing.cubic),
+}) // holds at 0 through the crossfade, then morphs
+// hero: { width: CARD_W, height: FIXED, boxSizing: 'border-box', justifyContent: 'center',
+//         transform: `scale(${interpolate(p, [0,1], [S0, 1])})` }  // pick FIXED so FIXED*S0 ≈ source height
+```
+
+## Meter/bar → big number (drain first)
+
+Morphing a progress bar into a big number: **drain the bar's fill to 0 first**, then fade the number in. A simultaneous crossfade leaves the bar's colored stub beside the digits and it reads as a **minus sign** (e.g. "-83"). Sequence the fill width 6%→0, then start the number's opacity only after the fill is gone.
+
+## Ease into a freeze (no jolt)
+
+A hard velocity stop - a scrolling marquee that freezes instantly on a beat - reads as a **jolt**. Decelerate the last ~15 frames into rest while still landing the freeze ON the beat by easing the "effective time" you drive the scroll with:
+
+```tsx
+const te = frame < ff - DECEL ? frame
+  : interpolate(frame, [ff - DECEL, ff], [ff - DECEL, ff], {
+      easing: Easing.out(Easing.cubic), extrapolateRight: 'clamp' })
+const scrollX = BASE - SPEED * te   // decelerates to rest at ff, still on the beat
+```
+
+## Punchy kicker: reveal as one unit
+
+Word-by-word reveal is the default for kinetic captions. For a punchline/kicker that should HIT, reveal the whole line at once (set the word stagger / `wordDelay` to 0) using the SAME spring as the rest - punchy but consistent. Switching one line to a different animation (a hard pop) feels off.
+
+## Deterministic variation (never Math.random)
+
+Remotion renders each frame independently and re-renders on resume; `Math.random()`, `Date.now()`, and argless `new Date()` give different values per frame → **flicker** (and break caching/determinism). For per-element variation (jitter, per-tile speeds, sparklines) seed a stable hash by index:
+
+```tsx
+const rand = (seed: number, k: number) => {
+  const v = Math.sin(seed * 53.17 + k * 29.83) * 6151.79
+  return v - Math.floor(v) // 0..1, stable across frames
+}
+```
+
 ## Composing patterns - the rule
 
 When a scene needs "card appears with text + cursor clicks it + ripple fires":

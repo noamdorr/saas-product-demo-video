@@ -150,6 +150,10 @@ All schematic UIs in the same film should use:
 
 This is what separates a polished schematic from a placeholder. The schematic UI feels like *your brand* expressing *another platform's idea* - not a generic mockup.
 
+## Vary repeated rows or it reads fake
+
+A mock dashboard or table where every row has the same sparkline shape, the same trend, and the same value instantly looks synthetic - real data has spread. Vary each row *deterministically* by seeding a hash off the row index (see `animation-patterns.md` -> "Deterministic variation (never Math.random)"), so the spread is reproducible across renders rather than reshuffling every frame. Drive trend shape, balance, and status from that seed: some rows trending down, some flat, a couple healthy and one in the danger state. A dashboard that looks lived-in sells the product; eight identical rows announce that it's a prop.
+
 ## Animating schematic UIs
 
 Schematic UIs are static React components. To animate them, wrap with primitives:

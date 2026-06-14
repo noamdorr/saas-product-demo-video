@@ -87,6 +87,14 @@ Aspect ratio decisions affect every layout downstream. Lock before writing the s
 
 The CTA is the single closing frame. It must match how the user actually wants to convert.
 
+## Writing the lines along the arc
+
+Once the macro shape and the punchline are locked, these three principles keep the copy moving the way the arc does.
+
+- **POV arc: you to product to you.** State the pain in second person ("your sending goes quiet"), name the product for the fix ("Acme watches every balance"), then return the payoff to the viewer ("now you'll know"). Ending on "you" makes the win feel like the viewer's, not the tool's. A film that ends on what the product does, rather than what the viewer gets, leaves the viewer outside the result.
+- **Answer the pain's halves; use the inversion.** If the pain is two-part (no visibility *and* no warning), give it two solution beats - one for each half - so nothing is left dangling. The literal inversion of the pain line is a strong spine for the payoff: pain "and no one tells you" becomes payoff "now you'll know." The arc reads as a closed loop instead of two loosely related halves.
+- **Save the metaphor for the CTA.** If the brand has a central metaphor, land it once, in the CTA. Repeating it earlier - or foreshadowing it in Act 1 - dilutes the payoff and can muddy the literal copy in the beats that need to land plainly. Let the metaphor be the last thing the viewer hears.
+
 ## The screen-by-screen format
 
 Once the macro shape is locked, draft the screen-by-screen. Each scene gets four fields:

@@ -66,6 +66,49 @@ Output shape (`beats.json`):
 
 If `warnings` contains "low kick/snare confidence," librosa struggled on the track. Review by ear in Audacity - look for a clear drop at the beginning and mark kicks/snares manually. A syncopated or ambient track may need manual tempo entry.
 
+## Find the drop with RMS, not just onsets
+
+The biggest musical moment - the **drop** or **swell** - is frequently a *sustained* loudness peak, not a sharp transient. `librosa.onset.onset_strength` (and the beat tracker built on it) finds transients: snare and kick hits, the sharp attack at the front of a note. The swell is different - it's a sustained energy peak where the whole mix gets loud and stays loud for a beat or more. Onset detection can miss it entirely or flag only its leading edge.
+
+Find it with `librosa.feature.rms`, which measures windowed energy rather than attack sharpness. Pin the single biggest visual reveal (the hero shot, the product burst, the dashboard slam-in) to the RMS-energy peak inside the target window - not merely to the nearest detected beat.
+
+```python
+import librosa, numpy as np
+y, sr = librosa.load("music.mp3", sr=22050)
+rms = librosa.feature.rms(y=y, hop_length=256)[0]
+times = librosa.frames_to_time(np.arange(len(rms)), sr=sr, hop_length=256)
+# loudest moment in, say, the 8-12s window -> map to a video frame (30fps)
+w = [(t*30, r) for t, r in zip(times, rms) if 8 < t < 12]
+swell_frame = max(w, key=lambda p: p[1])[0]
+```
+
+The small `hop_length=256` (vs librosa's default 512) gives finer time resolution, so the peak frame is accurate to within a few video frames. Round `swell_frame` to the nearest snare/kick from `beats.json` only if it lands within a frame or two - otherwise trust the RMS peak. The energy peak is where the audience *feels* the climax, even when no transient is detected there.
+
+## Two close hits, two events
+
+A sharp transient and the swell just after it can be ~0.3-0.5s apart - roughly 9-15 frames at 30 fps, a beat or less. That's two distinct musical moments, so assign two distinct visual events. Put a hard *impact* on the transient (a crash cut, a red flatline snapping in, a slam of a card) and the big *reveal* on the swell a beat later (the product, the dashboard, the hero number counting up).
+
+Don't collapse them onto one frame, and don't waste the swell on a held or static screen. If the swell lands while the frame is already showing a finished, motionless composition, the loudest moment of the track has nothing to do - the energy peak passes over dead pixels. Spend the transient on the hit and the swell on the payoff.
+
+```python
+# transient (crash / flatline) on the detected onset, reveal on the RMS swell
+impact_frame = next(f for f in kick_frames if f >= swell_frame - 15)
+reveal_frame = round(swell_frame)   # a beat later, on the sustained peak
+```
+
+## Pace text reveals between beats
+
+Reveal caption lines on detected beats - but mind the *gaps* between them. A single line left alone on screen too long reads as dead air: a **lonely line** the eye finishes reading with seconds to spare before anything changes. When a caption has multiple lines, don't hold the first one for a full bar; pull the next line in earlier, onto the next beat, so the text keeps pace with the music.
+
+```typescript
+// Two-line caption: don't strand line 1 for a whole bar (60 frames).
+// Reveal on consecutive beats so the eye stays busy.
+const line1Frame = isSnare ? sceneSnare : sceneKick;   // first beat
+const line2Frame = line1Frame + FRAMES_PER_BEAT;       // next beat, ~15 frames later
+```
+
+And avoid the inverse - a text-less hold where a visual lands but its caption arrives seconds later. Start a caption as the thing it describes appears, not after. If the dashboard slams in on the swell, its label should be entering on that same beat, not a bar down the line once the audience has already moved on.
+
 ## The timing constants pattern
 
 One canonical object in `theme-v2.ts` (or `src/v2/theme-v2.ts`). Every `<Sequence>` in the master and every per-scene debug composition reads from this.

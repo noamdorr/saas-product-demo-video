@@ -102,6 +102,12 @@ In a **vertical layout** where space is precious, this can push the card past th
 
 **Fix (vertical)**: either bound the card's maximum scale to ensure it never overflows, or set `transform-origin: top center` so the card grows downward only. Or compute the expanded height and pre-reserve space.
 
+## 14. `Math.random` / `Date.now` in render → flicker
+
+Remotion renders frames independently and re-renders on resume, so `Math.random()`, `Date.now()`, and argless `new Date()` produce different values per frame (visible **flicker**) and break render caching/determinism.
+
+**Fix:** seed a deterministic hash by a stable index instead (see `animation-patterns.md` → "Deterministic variation (never Math.random)").
+
 ## The meta-gotcha: Studio ≠ final render
 
 Studio runs with different audio defaults, different image intermediates, and a different bundling path than the CLI render. Things that look fine in Studio can break at render time:

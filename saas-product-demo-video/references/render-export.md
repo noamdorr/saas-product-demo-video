@@ -19,7 +19,7 @@ File size: ~12-18 MB for 28s. Upload-ready for LinkedIn, YouTube, Loom.
 
 ## 4K master (3840×2160)
 
-Remotion's `--scale=2` upscales the composition. Vector-source elements stay sharp:
+Remotion's `--scale=2` renders the 1080p composition at 2× pixel density (3840×2160) with NO layout or coordinate changes. Vector-source elements stay sharp:
 
 ```bash
 npx remotion render Act2Master out/Act2Master_4K.mp4 \
@@ -30,7 +30,7 @@ npx remotion render Act2Master out/Act2Master_4K.mp4 \
 ```
 
 - `--crf=15` because 4K at CRF 14 produces 200+ MB files. 15 is still visually lossless at the higher resolution.
-- `--scale=2` multiplies both dimensions. Composition stays at 1920×1080 logically but renders at 3840×2160.
+- `--scale=2` multiplies both dimensions. Composition stays at 1920×1080 logically but renders at 3840×2160. Because the video is vector/CSS/SVG it stays crisp, and because nothing about the layout changes, beat-sync and any positioning rig are untouched - keep the same quality flags.
 - Expect 2-3× the render time.
 
 File size: ~45-90 MB for 28s.
@@ -58,6 +58,33 @@ npx remotion render v2-Scene05 out/scene05.mp4 --crf=18 --concurrency=8
 - IDs must be hyphenated (see `gotchas.md`).
 
 A single-scene render on a 150-frame scene takes 15-30s. The full 840-frame master takes ~3 minutes. Use debug renders during iteration, master renders only at wave boundaries.
+
+## Verify frames cheaply with ffmpeg
+
+There's no test runner for a video - you verify visually. Render the full mp4 ONCE (one bundle), then pull any frame instantly:
+
+```bash
+ffmpeg -y -i out/video.mp4 -vf "select=eq(n\,FRAME)" -vframes 1 out/f.png
+```
+
+This is far cheaper than `npx remotion still <Comp> out.png --frame=N` per frame, which re-bundles on every call. To diagnose a motion artifact (ghost / jolt / shrink), extract a DENSE sequence of frames around the suspect frame and step through them:
+
+```bash
+for n in $(seq 70 90); do
+  ffmpeg -y -i out/video.mp4 -vf "select=eq(n\,$n)" -vframes 1 out/f_$n.png
+done
+```
+
+## Outro hold so the CTA lingers
+
+Viewers need the URL/CTA on screen ~2s. If the cut ends right on the last beat, extend the final scene (and `durationInFrames`). Check the soundtrack length first:
+
+```bash
+ffprobe -v error -show_entries format=duration \
+  -of default=noprint_wrappers=1:nokey=1 music.mp3
+```
+
+A track longer than the cut means you can extend INTO it - just move the audio fade-out to the new end frame. A slow-blooming brand-color glow behind the CTA warms the hold.
 
 ## Thumbnail / poster frame
 
