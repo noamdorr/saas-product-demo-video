@@ -139,6 +139,16 @@ const localBeat = 323 - scene.start
 
 This is the same `localFrame = master - sceneStart` conversion as a `<Sequence>` (see "Converting scene-local ↔ master"), but the `<Series>` trap is sharper: children have no explicit `from` prop to remind you of the offset, so it's easy to treat a global beat as if it were local.
 
+Ship the conversion as a helper rather than scattering `- sceneStart` across scenes. `assets/code-templates/scene-frames.ts` exports `toLocal` / `toMaster`, plus `sceneBeats` to grab just the beats inside a scene already in local frames:
+
+```tsx
+import { sceneBeats } from "./scene-frames";
+
+// beats.json snare_frames + this scene's master start/duration:
+const localSnares = sceneBeats(beats.snare_frames, { start: 200, duration: 136 });
+// -> e.g. [16, 32, 47, ...], local frames ready for useCurrentFrame() comparisons
+```
+
 ## The timing constants pattern
 
 One canonical object in `theme-v2.ts` (or `src/v2/theme-v2.ts`). Every `<Sequence>` in the master and every per-scene debug composition reads from this.
@@ -181,6 +191,8 @@ Document in the commit message AND as a comment above the constant:
 // Local 120 → master 300 (snare). Last pill + button pulse + click ripple coincide on snare hit.
 const CLICK_VIEW_DETAILS = 120;
 ```
+
+Once you have more than a couple of these, reach for `assets/code-templates/scene-frames.ts` (`toLocal` / `toMaster` / `sceneBeats`) instead of repeating the `- sceneStart` arithmetic by hand.
 
 ## The snare-boundary rule
 

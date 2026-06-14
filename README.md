@@ -130,6 +130,7 @@ saas-product-demo-video/
 │   └── code-templates/
 │       ├── theme-v2.ts
 │       ├── easings.ts
+│       ├── scene-frames.ts
 │       ├── TypedText.tsx
 │       ├── PopIn.tsx
 │       ├── MaskReveal.tsx
