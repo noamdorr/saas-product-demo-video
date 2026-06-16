@@ -138,6 +138,18 @@ A URL in `<Img>` or `<Audio>` can stall or fail the headless renderer and is not
 
 **Fix:** bundle assets into `public/` and load them with `staticFile()`.
 
+## 20. Native `<img>`/`<audio>` render blank; use Remotion's components
+
+Even for a local `staticFile()` asset, a native `<img>` can capture the frame *before* the browser has loaded and decoded the image, so a logo flashes blank for a frame or two and the result is timing-dependent (not deterministic). Native `<img>`/`<audio>`/`<video>` don't participate in Remotion's `delayRender`, so the renderer doesn't wait for them.
+
+**Fix:** use Remotion's `<Img>`, `<Audio>`, `<Video>`/`<OffthreadVideo>` (they hold the frame until the asset is ready). `<img src={staticFile(...)}>` is the subtle trap - right `src`, wrong element.
+
+## 21. `interpolate` extrapolates unless you clamp
+
+By default `interpolate(frame, [a, b], [x, y])` keeps extrapolating *linearly* outside `[a, b]`. So before `a` and after `b` the value runs past `x`/`y` - an opacity climbs above 1, a slide keeps going off-screen, a scale balloons. The element looks correct during its window and wrong on every frame outside it.
+
+**Fix:** pass `{ extrapolateLeft: "clamp", extrapolateRight: "clamp" }` on every `interpolate` unless you specifically want extrapolation. Symptom to recognize: motion that's fine mid-window but drifts/overshoots before it starts or after it ends.
+
 ## The meta-gotcha: Studio ≠ final render
 
 Studio runs with different audio defaults, different image intermediates, and a different bundling path than the CLI render. Things that look fine in Studio can break at render time:
