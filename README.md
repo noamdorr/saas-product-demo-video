@@ -23,6 +23,12 @@ Here's what the skill produced for [Reechee](https://reechee.io) (30s, 16:9, mot
 
 The skill renders MP4s suitable for LinkedIn, YouTube, or homepage hero embeds. HD by default, optional 4K via `--scale=2`.
 
+## Prefer one HTML file and the Claude Motion editing loop?
+
+There is a sibling skill, [claude-motion-saas-video](https://github.com/noamdorr/claude-motion-saas-video): the same job in the Claude Motion style. No Remotion, no React, no Python. One self-contained `video.html` animated as a pure function of time, a scrubbable preview in any browser, and an MP4 render through headless Chromium plus ffmpeg. It has a zero-question mode (`lucky`, it gathers brand, screens and copy from your repo and site) and an interview mode (`grill`, it captures your taste from reference videos first), and an `edit` skill that changes one word, number or timing while the rest stays.
+
+Use this Remotion skill when you want a React codebase and beat-locked cuts from a soundtrack. Use the Claude Motion one when you want a first cut in minutes and a file you can paste into claude.ai.
+
 ## Prerequisites
 
 - [Node.js](https://nodejs.org/) 18+ and [Python 3](https://www.python.org/) - macOS, Linux, or Windows (on Windows, the two bash scripts need [WSL](https://learn.microsoft.com/en-us/windows/wsl/) or [Git Bash](https://git-scm.com/downloads); the Python and Node parts run natively)
