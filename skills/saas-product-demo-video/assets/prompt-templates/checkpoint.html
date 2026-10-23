@@ -1,0 +1,55 @@
+<!doctype html>
+<!--
+  Checkpoint page template. Copy to docs/video/checkpoint.html in the user's
+  project, fill in the three marked parts, and open it for the user. It puts the
+  rendered first scene and the full script in one place, which is what the one
+  checkpoint asks them to judge together.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>First scene and script: is this the film?</title>
+<style>
+  body { font: 16px/1.5 system-ui, sans-serif; margin: 0 auto; max-width: 1000px; padding: 32px 16px 64px; color: #1a1a1a; background: #fafafa; }
+  h1 { font-size: 24px; margin: 0 0 4px; }
+  p.ask { margin: 0 0 24px; color: #444; }
+  video, img { width: 100%; height: auto; display: block; border: 1px solid #ddd; border-radius: 6px; background: #000; }
+  .stills { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin: 16px 0 32px; }
+  .stills figure { margin: 0; } .stills figcaption { font-size: 13px; color: #555; margin-top: 4px; }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; }
+  th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid #e2e2e2; }
+  th { font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: #555; }
+  h2 { font-size: 18px; margin: 32px 0 8px; }
+  li { margin-bottom: 4px; }
+</style>
+</head>
+<body>
+  <h1>First scene and script</h1>
+  <p class="ask">One question: are the look and the words right? Play the clip with sound on, then read the script below it.</p>
+
+  <!-- 1. The rendered first scene, with music. Path relative to this file. -->
+  <video controls src="../../video/out/scene-01.mp4"></video>
+
+  <!-- 2. Two to four stills of the frames you checked. -->
+  <div class="stills">
+    <figure><img src="../../video/out/check/Scene-01-f0000.png" alt=""><figcaption>Frame 0</figcaption></figure>
+    <figure><img src="../../video/out/check/Scene-01-f0089.png" alt=""><figcaption>Last frame</figcaption></figure>
+  </div>
+
+  <!-- 3. The script and scenes table from the brief, and the assumptions that most need a yes or no. -->
+  <h2>Script (draft)</h2>
+  <table>
+    <tr><th>#</th><th>Ends on</th><th>On screen</th><th>What moves</th></tr>
+    <tr><td>1</td><td>backbeat 4</td><td>"..."</td><td>...</td></tr>
+  </table>
+
+  <h2>Choices made without you</h2>
+  <ul>
+    <li>...</li>
+  </ul>
+
+  <h2>What has not been checked</h2>
+  <p>How the motion feels and whether the cuts sit on the music. Those need your eyes and ears.</p>
+</body>
+</html>

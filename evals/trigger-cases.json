@@ -1,0 +1,26 @@
+[
+  {
+    "prompt": "Make a 30-second software launch video in Remotion from these screenshots.",
+    "should_trigger": true
+  },
+  {
+    "prompt": "This product film feels generic. Improve its visual storytelling but keep the script.",
+    "should_trigger": true
+  },
+  {
+    "prompt": "Create a vertical cutdown of our approved SaaS demo.",
+    "should_trigger": true
+  },
+  {
+    "prompt": "Redesign my SaaS homepage.",
+    "should_trigger": false
+  },
+  {
+    "prompt": "Edit this interview into a testimonial montage.",
+    "should_trigger": false
+  },
+  {
+    "prompt": "Explain a generic React state bug.",
+    "should_trigger": false
+  }
+]

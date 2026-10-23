@@ -12,3 +12,7 @@
 
 # Internal session prompts (never publish)
 .publishing-prompt*
+
+# Python
+__pycache__/
+*.pyc

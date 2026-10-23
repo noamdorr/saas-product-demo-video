@@ -1,19 +1,20 @@
 # SaaS Product Demo Video Skill for Remotion
 
-A skill for producing a 20-45 second SaaS product demo video in [Remotion](https://www.remotion.dev/). End-to-end: asset intake, beat detection from the soundtrack, schematic UI mockups when the product has no real UI to film, scene composition, and final render.
+A skill for producing a short SaaS product film (20 to 60 seconds) in [Remotion](https://www.remotion.dev/), and for refining or reskinning one that exists. End-to-end: asset intake, the product's real UI rebuilt from its site, a look borrowed from reference videos you like, beat detection from the soundtrack, scene composition, checked renders, and iteration waves with the owner.
 
-It's packaged as a Claude Code skill (that's where it's been used in production), but the methodology is LLM-agnostic. The questionnaire, the references, the Python + bash scripts, the React/Remotion code templates - all just markdown and code.
+It was built and used in production with Claude Code. v2 follows the open [Agent Skills](https://agentskills.io) format, so other agents that read `SKILL.md` (Codex, Cursor, Gemini CLI and more) can load it too. On 2026-10-03, v2 was run from a clean workspace to the first-scene checkpoint in Claude Code (Sonnet 5.5) and in Codex CLI (GPT-6 Astra). The questionnaire, the references, the Python and bash scripts, the React/Remotion scaffold - all just markdown and code.
 
 ## What you get
 
-- A structured asset-intake questionnaire that pulls all the brand specifics upfront (logo, fonts, colors, soundtrack, copy, references) before a single scene gets composed - so what you ship feels yours, not template-y
-- A reference-video analysis flow that pulls directorial vocabulary from YouTube clips you point at (push-through, whip-pan, V-cut pull-back, match-cut zoom)
-- librosa-powered beat detection from your soundtrack
-- Snare-locked scene boundaries plus a one-pass aligner for in-scene events (the single highest-leverage iteration after the first render)
-- Animation primitives (TypedText, MaskReveal, PopIn, Counter, IceCrack, Cursor, BRollLayer)
-- Schematic UI templates for products without a real UI - LinkedIn-style profile card, email composer, API panel
-- A pre-render writing-style check that catches em-dashes, curly quotes, and other AI-tells before they ship on screen
-- A click-positioning playbook that solves the #1 iteration-churn complaint ("the cursor missed the button")
+- A structured asset-intake questionnaire that pulls all the brand specifics upfront (logo, fonts, colors, soundtrack, copy, references) before a single scene gets composed, and a recipe for rebuilding the product's real UI from its site (capture at 2x, measure from the DOM, lay out at 1x, scale for the frame) instead of inventing it
+- A reference-video analysis flow that pulls directorial vocabulary from clips you point at (push-through, whip-pan, match-cut zoom), a creative-direction page for the one visual argument a film makes, and the list of template tells ("claudesque", "Canva") that owners reject on sight
+- librosa-powered beat detection that tells you how far to trust it, so a track that won't hold a grid gets flagged before you build a film on it
+- Scene cuts placed on the backbeat by beat number, plus a one-pass aligner for in-scene events
+- A ready Remotion scaffold you copy instead of typing config by hand, with a Stage component for camera moves and whip/push/pull-back transitions and a Title component for one text move. CI typechecks it on every change
+- A render-and-check loop: stills from one bundle, contact sheets, cut strips, a jerk report, an attention pass and a word count, run by the agent before you see anything
+- Animation primitives (TypedText, MaskReveal, PopIn, ZoomPunch, Cursor, Counter, IceCrack, BRollLayer) and sound effects measured onto their events
+- Schematic UI templates for products without a real UI
+- Iteration discipline from a 24-wave production: every candidate behind a switch, locked decisions, test beds beside the master, a handoff template for the next session, and 80 gotchas with symptom, cause and fix
 
 ## Example output
 
@@ -31,148 +32,163 @@ Use this Remotion skill when you want a React codebase and beat-locked cuts from
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/) 18+ and [Python 3](https://www.python.org/) - macOS, Linux, or Windows (on Windows, the two bash scripts need [WSL](https://learn.microsoft.com/en-us/windows/wsl/) or [Git Bash](https://git-scm.com/downloads); the Python and Node parts run natively)
-- An LLM coding agent - [Claude Code](https://claude.ai/claude-code) gives you the auto-trigger and Super Powers integration; Codex / Cursor / Aider / others work too if you point them at `SKILL.md` directly
-- [Remotion](https://www.remotion.dev/) 4.x dependencies (the skill scaffolds these for you, no manual setup)
-- Python [`librosa`](https://librosa.org/) for beat detection (the skill walks you through `pip install` if it's missing)
+- [Node.js](https://nodejs.org/) 18+ and [Python 3](https://www.python.org/) - macOS, Linux, or Windows (on Windows, the bash scripts need [WSL](https://learn.microsoft.com/en-us/windows/wsl/) or [Git Bash](https://git-scm.com/downloads); the Python and Node parts run natively)
+- A coding agent that can run shell commands and read image files
+- Python [`librosa`](https://librosa.org/) for beat detection and [Pillow](https://python-pillow.org/) for the contact sheets (the skill walks you through `pip install` if they're missing)
+- [ffmpeg](https://ffmpeg.org/) for the contact sheets, cut strips and the check of a finished render
 
-### Strongly recommended (with fallbacks)
+Remotion itself comes with the scaffold, no manual setup. Note that Remotion has its own [license](https://www.remotion.dev/docs/license): free for individuals and small teams, paid for larger companies.
 
-- **[Super Powers plugin](https://github.com/obra/superpowers).** When present, the skill orchestrates `superpowers:brainstorming`, `superpowers:writing-plans`, and `superpowers:subagent-driven-development`. Without it, the workflow becomes more conversational and a bit slower - but everything still works.
-- **Gemini access for reference-video analysis.** Three paths in priority order; the skill picks whichever is highest available:
-  1. [`gemini` CLI](https://ai.google.dev/gemini-api/docs/quickstart) on PATH (or a community wrapper like `gemini-yt`) - one-liner wrap
-  2. `GEMINI_API_KEY` set in env - use the bundled curl wrapper
-  3. None of the above - fall back to manual [Google AI Studio](https://aistudio.google.com/) copy-paste
+### Optional (the skill works without them)
+
+- **[Remotion's official skills](https://www.remotion.dev/docs/ai/skills).** They cover Remotion's API as it changes between releases; this skill covers how to make the film. The skill offers to install them and carries on either way.
+- **A `GEMINI_API_KEY`** for the best reference-video analysis (Gemini watches the actual video). Without one, the skill samples frames with ffmpeg and reads them itself.
 
 ## Install
 
-The skill ships as a `.skill` archive (it's just a zip with a different extension). Drop it into your Claude Code plugins directory.
-
-> **Using a different agent?** Skip the `.skill` install and use **Option B** below. After cloning, point your agent at `saas-product-demo-video/SKILL.md` and it'll have the same content - the auto-trigger and Super Powers orchestration are the only things you'll miss.
-
-### Option A - one-line install from the latest release
+### Any agent - one command
 
 ```bash
-curl -L https://github.com/noamdorr/saas-product-demo-video/releases/latest/download/saas-product-demo-video.skill \
-  -o ~/.claude/plugins/saas-product-demo-video.skill
+npx skills add noamdorr/saas-product-demo-video
 ```
 
-### Option B - clone and link
+This uses the open [skills](https://github.com/vercel-labs/skills) installer, which puts the skill where your agent looks for skills.
+
+### Claude Code - as a plugin
+
+```bash
+claude plugin marketplace add noamdorr/saas-product-demo-video
+claude plugin install saas-product-demo-video@noamdorr-skills
+```
+
+### Claude apps - upload
+
+Download `saas-product-demo-video.skill` from the [latest release](https://github.com/noamdorr/saas-product-demo-video/releases/latest) and upload it in your Claude settings, where skills are managed.
+
+### Clone and link
 
 ```bash
 git clone https://github.com/noamdorr/saas-product-demo-video.git
-ln -s "$(pwd)/saas-product-demo-video/saas-product-demo-video" ~/.claude/skills/saas-product-demo-video
+ln -s "$(pwd)/saas-product-demo-video/skills/saas-product-demo-video" ~/.claude/skills/saas-product-demo-video
 ```
 
 Use this one if you want to fork and tweak (which I'd encourage - the references are written to be edited).
 
-### Option C - manual
+> **Coming from v1?** The skill moved from `saas-product-demo-video/` to `skills/saas-product-demo-video/` inside the repo. If you linked the old path, re-run the `ln -s` line above.
 
-1. Download `saas-product-demo-video.skill` from the [latest release](https://github.com/noamdorr/saas-product-demo-video/releases/latest)
-2. Move it into your Claude Code plugins directory (typically `~/.claude/plugins/`)
-3. Restart Claude Code
-
-After install, ask Claude Code something like *"let's make a 30-second product demo for my SaaS"* and the skill should auto-trigger.
+After install, ask your agent something like *"let's make a 30-second product demo for my SaaS"*.
 
 ## How a session looks
 
 ```
 You: I want to make a 30-second product video for my SaaS.
 
-Claude (skill triggers, asks intake questions):
-  1. Aspect ratio?
-  2. Duration?
-  3. Logo (SVG / PNG dimensions)?
-  4. Brand colors?
-  5. Fonts?
-  6. Copy / script?
-  7. Voiceover?
-  8. Soundtrack?
+Agent (asks the intake questions in one message):
+  aspect ratio, duration, logo, brand colors, fonts,
+  script, voiceover, soundtrack, reference videos
 
-You: [answer or tell Claude to pick defaults]
+You: [answer what you can; it picks defaults for the rest and tells you]
 
-Claude:
-  - Runs detect-beats.py against your soundtrack
-  - Asks for 2-3 YouTube reference videos
-  - Either runs the Gemini analysis script or walks you through AI Studio
-  - Writes a spec doc + implementation plan
-  - Builds primitives → schematic UI → scenes → master
-  - Renders Scene 1 for your approval
-  - Iterates in waves based on your feedback
+Agent:
+  - Breaks down your reference videos into a motion vocabulary
+  - Copies the Remotion scaffold and detects the beats in your soundtrack
+  - Writes a one-page brief and builds scene 1
+  - Checks scene 1 in rendered stills, then shows it to you with the full script
+
+You: [approve the look and the words, or redirect - this is the one stop]
+
+Agent:
+  - Builds the rest of the film, checking each scene in stills
+  - Iterates in waves based on your notes
   - Renders the final HD MP4 + thumbnail
 ```
 
-In practice you land a polished video in roughly 60-120 minutes of Claude wallclock time, broken across however many sessions you want. Most of those minutes go into iterating on Scene 1 until the style feels right - once it locks, the rest of the scenes inherit the same vocabulary and finish fast.
+In practice you land a polished video in roughly 60-120 minutes of agent wallclock time, broken across however many sessions you want. Most of those minutes go into getting scene 1 right - once the style is settled, the rest of the scenes inherit the same vocabulary and finish fast.
 
 ## What's inside the skill
 
 ```
-saas-product-demo-video/
-├── SKILL.md                       # Entry point: prereqs, three pillars, ideal sequence
+skills/saas-product-demo-video/
+├── SKILL.md                       # Entry point: the flow, the one checkpoint, what done means
 ├── references/
-│   ├── ideal-sequence.md          # Annotated end-to-end flow
-│   ├── prereq-check.md
-│   ├── asset-intake.md            # Pillar 1: gather everything before composing
+│   ├── workflow.md                # The flow step by step, with the reasoning
+│   ├── setup.md                   # What to check before starting
+│   ├── asset-intake.md            # Gather everything before composing
+│   ├── product-ui-from-site.md    # Rebuild the product's real UI from its marketing site
 │   ├── script-development.md      # Screen-by-screen methodology
-│   ├── reference-video-vibe.md    # Pillar 2: 3-path Gemini analysis
-│   ├── beat-sync.md               # Pillar 3: snare-locked cuts + internal events + typing budget
-│   ├── project-scaffold.md        # Minimal Remotion setup + commit checklist
-│   ├── animation-patterns.md      # TypedText, MaskReveal, PopIn, ZoomPunch, FloatingElements
+│   ├── shot-design.md             # What each shot changes for the viewer
+│   ├── reference-video-vibe.md    # Director's breakdowns: Gemini, sampled frames, or by hand
+│   ├── reference-atlas.md         # A curated sample of product films worth borrowing from
+│   ├── creative-direction.md      # The one visual argument a film makes
+│   ├── motion-language.md         # Curves and timing that follow meaning
+│   ├── music-sourcing.md          # Find and measure a track when the owner has none
+│   ├── beat-sync.md               # The beat grid, backbeat cuts, internal events, typing budget
+│   ├── project-scaffold.md        # Copy the scaffold, what each file is for
+│   ├── animation-patterns.md      # TypedText, MaskReveal, PopIn, ZoomPunch and more
+│   ├── self-check.md              # Which stills to render and what to look for
+│   ├── taste-review.md            # The questions a fresh pair of eyes asks after a checkpoint
+│   ├── sound-effects.md           # Where a sound earns its place, and how to land it
 │   ├── b-roll-integration.md      # When the film uses live-action layers
 │   ├── schematic-ui-fidelity.md   # When the product has no real UI
 │   ├── click-positioning.md       # The #1 iteration-churn pain point, solved
-│   ├── writing-style.md           # Em-dashes and other AI-tells to avoid
 │   ├── cursor-math.md             # Hotspot offset, scale-ratio transform
-│   ├── iteration-playbook.md      # Wave structure, subagent batching, Studio restarts
+│   ├── writing-style.md           # Em-dashes and other AI-tells to avoid
+│   ├── iteration-playbook.md      # Fix waves, switches, locked decisions, when to stop
+│   ├── delegation.md              # Splitting a film across scene agents in one session
 │   ├── render-export.md           # HD/4K render commands
-│   ├── gotchas.md
-│   └── vertical-port.md           # 9:16 reel porting discipline
+│   ├── vertical-port.md           # 9:16 porting and platform safe areas
+│   └── gotchas.md                 # 80 numbered gotchas: symptom, cause, fix
 ├── assets/
-│   ├── prompt-templates/
-│   │   ├── asset-intake-questionnaire.md
-│   │   ├── beat-sheet.md
-│   │   ├── spec-doc.md
-│   │   └── gemini-reference-video.md
-│   └── code-templates/
-│       ├── theme-v2.ts
-│       ├── easings.ts
-│       ├── scene-frames.ts
-│       ├── TypedText.tsx
-│       ├── PopIn.tsx
-│       ├── MaskReveal.tsx
-│       ├── ZoomPunch.tsx
-│       ├── FloatingElements.tsx
-│       ├── Cursor.tsx
-│       ├── BRollLayer.tsx
-│       ├── Counter.tsx
-│       ├── IceCrack.tsx
-│       ├── SchematicProfileCard.tsx
-│       ├── SchematicEmailComposer.tsx
-│       ├── SchematicApiPanel.tsx
-│       ├── Act2Master.tsx
-│       └── Act2MasterVertical.tsx
+│   ├── scaffold/                  # A complete Remotion project to copy
+│   │   ├── src/                   #   Master, Root, timing, theme, easings, scene-frames,
+│   │   │                          #   TypedText, MaskReveal, PopIn, ZoomPunch, Cursor, Sfx
+│   │   └── tools/                 #   stills.mjs, sheets.py, jerk.py, dump-timing.mjs:
+│   │                              #   the render-and-check loop
+│   ├── components/                # Optional pieces: Stage, Title, Counter, IceCrack, Marker,
+│   │                              #   BRollLayer, FloatingElements, TestBed, DebugClickTargets,
+│   │                              #   Schematic* cards, MasterVertical
+│   └── prompt-templates/
+│       ├── asset-intake-questionnaire.md
+│       ├── brief.md
+│       ├── scene-brief.md         # Brief for one scene agent
+│       ├── handoff.md             # Hand the next session the state of the film
+│       └── checkpoint.html        # The one-stop review page for the owner
 └── scripts/
-    ├── detect-beats.py             # librosa-powered beat tracking
-    ├── analyze-reference-video.sh  # Gemini Pro wrapper for YouTube analysis
-    ├── reference-video-prompt.md   # Directorial-breakdown prompt
-    ├── align-internal-events.py    # Beat-align in-scene events within ±tolerance
-    └── check-typing-budget.py      # Verify typing fits in scene before render
+    ├── detect-beats.py             # Beat grid, backbeats, and a reliability verdict
+    ├── align-internal-events.py    # Beat-align in-scene events within a tolerance
+    ├── check-typing-budget.py      # Verify typing fits in its scene before render
+    ├── check-copy.mjs              # Count and check the film's words before a render
+    ├── check-sfx.py                # Check every sound cue against its event
+    ├── measure-lead.py             # Measure a sound file's lead before its hit
+    ├── make-sfx.sh                 # Synthesize a neutral set of interface sounds with ffmpeg
+    ├── analyze-reference-video.sh  # Gemini wrapper for YouTube analysis
+    ├── sample-reference-frames.sh  # Contact sheets and cut strips, no API key needed
+    ├── reference-video-prompt.md   # The directorial-breakdown prompt
+    ├── render-stills.sh            # Render single frames for the self-check
+    ├── side-by-side.sh             # Two directions for one scene, side by side
+    └── verify-scaffold.sh          # Typecheck the scaffold and every optional component
 ```
+
+`evals/` at the repo root is maintainer material (trigger cases, a baseline and a report) and is not part of the skill bundle.
 
 ## Development
 
-To rebuild the `.skill` archive after editing:
-
 ```bash
+# Typecheck the scaffold and all optional components (add --render for a test still)
+skills/saas-product-demo-video/scripts/verify-scaffold.sh
+
+# Offline tests for the Gemini wrapper
+python3 -m unittest discover -s tests
+
+# Rebuild the .skill archive for release
 ./build.sh
-# Produces saas-product-demo-video.skill at the repo root
 ```
 
-That's all `build.sh` does - it's a glorified `zip` with a different extension. No install step, no compile step.
+`build.sh` is a glorified `zip` with a different extension. No install step, no compile step.
 
 ## Contributing
 
-Contributions welcome. Open an issue first if you're planning a non-trivial change, so we don't both build the same thing differently. Keep edits to `SKILL.md` lean (it's loaded into Claude's context every time the skill triggers); deeper content goes in `references/`.
+Contributions welcome. Open an issue first if you're planning a non-trivial change, so we don't both build the same thing differently. Keep edits to `SKILL.md` lean (it's loaded into the agent's context every time the skill triggers); deeper content goes in `references/`.
 
 ## License
 
@@ -180,4 +196,4 @@ MIT. See [LICENSE](LICENSE).
 
 ## Credits
 
-Built by [Noam Dorr](https://github.com/noamdorr). This sits on top of [Remotion](https://www.remotion.dev/) (the React-based video framework that makes any of this possible) and the [Super Powers plugin](https://github.com/obra/superpowers), which gave me the brainstorming → spec → plan → build loop the skill orchestrates around.
+Built by [Noam Dorr](https://github.com/noamdorr). This sits on top of [Remotion](https://www.remotion.dev/), the React-based video framework that makes any of this possible.

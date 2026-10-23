@@ -1,0 +1,20 @@
+{
+  "name": "saas-product-demo-video",
+  "description": "Build, refine or reskin a short SaaS product film in Remotion: asset intake, the product's real UI from its site, reference-video analysis, beat detection, a creative-direction pass, animation primitives, sound effects, and a render-and-check loop with iteration discipline.",
+  "version": "2.1.0",
+  "author": {
+    "name": "Noam Dorr",
+    "url": "https://github.com/noamdorr"
+  },
+  "homepage": "https://github.com/noamdorr/saas-product-demo-video",
+  "repository": "https://github.com/noamdorr/saas-product-demo-video",
+  "license": "MIT",
+  "keywords": [
+    "remotion",
+    "video",
+    "saas",
+    "product-demo",
+    "motion-graphics",
+    "marketing"
+  ]
+}

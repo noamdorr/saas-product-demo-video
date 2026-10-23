@@ -1,0 +1,16 @@
+{
+  "name": "noamdorr-skills",
+  "owner": {
+    "name": "Noam Dorr"
+  },
+  "metadata": {
+    "description": "Agent skills by Noam Dorr. Currently one: build a beat-synced SaaS product demo video in Remotion."
+  },
+  "plugins": [
+    {
+      "name": "saas-product-demo-video",
+      "source": "./",
+      "description": "Build a 20-45 second, beat-synced SaaS product demo video in Remotion."
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "skill_name": "saas-product-demo-video",
+  "evals": [
+    {
+      "id": 1,
+      "name": "billing-clarity",
+      "prompt": "Plan a 24-second 16:9 launch film for a fictional billing product, Tallypath. Verified capability: a finance operator can match an invoice to its payment and inspect an unmatched item. Supplied real UI has a table and detail drawer; no measured time-saving claims. Brand: warm white, indigo, sturdy sans serif. Audience: busy finance operators. No soundtrack has been selected; muted comprehension matters. I trust your taste. Propose the visual argument, materially different treatments, one detailed shot and the smallest useful checkpoint. Planning only; no code, browsing, purchases or asset generation."
+    },
+    {
+      "id": 2,
+      "name": "collaboration-play",
+      "prompt": "Plan a 24-second 16:9 product film for a fictional multiplayer sketchboard, Scribbleclub. Verified capability: two people can sketch simultaneously and combine selected shapes into one shared board. Brand: vivid coral, ink, hand-drawn marks and human warmth. Audience: independent designers. Existing licensed track has a regular beat but a long quiet phrase before a final accent. Avoid unsupported speed claims. I trust your taste. Propose the visual argument, materially different treatments, one detailed shot and the smallest useful checkpoint. Planning only; no code, browsing, purchases or asset generation."
+    },
+    {
+      "id": 3,
+      "name": "bounded-revision",
+      "prompt": "Revise a fictional approved SaaS video: cut-c is the accepted master, while source has an unapproved cursor experiment. Keep all copy, soundtrack, palette, and cuts. Only the 8\u201314s handoff from a queue row to a detail drawer feels generic; the two screenshots contain different sample IDs. I have 90 minutes for the improvement. Available reference evidence is a studio case-study paragraph and two stills, with no accessible video or audio. Give a scoped plan, a recommended short test, and what you can honestly evaluate. Planning only; do not edit or render the master, browse, buy or generate assets."
+    }
+  ]
+}
