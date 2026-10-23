@@ -1,0 +1,35 @@
+name: verify
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Shell scripts parse
+        run: |
+          status=0
+          while IFS= read -r script; do
+            bash -n "$script" || status=1
+          done < <(git ls-files '*.sh')
+          exit "$status"
+
+      - name: Offline Python tests
+        run: python3 -m unittest discover -s tests -p 'test*.py' -v
+
+      # Typecheck only. The still render downloads a browser, so it stays a local check:
+      #   skills/saas-product-demo-video/scripts/verify-scaffold.sh --render
+      - name: Scaffold and optional components typecheck
+        run: bash skills/saas-product-demo-video/scripts/verify-scaffold.sh
