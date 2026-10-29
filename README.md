@@ -18,7 +18,7 @@ It was built and used in production with Claude Code. v2 follows the open [Agent
 
 ## Example output
 
-Here's what the skill produced for [Reechee](https://reechee.io) (30s, 16:9, motion graphics + collage b-roll):
+Here's what the skill produced for [Reechee](https://reechee.io/?utm_source=github&utm_medium=readme&utm_campaign=saas-product-demo-video&utm_content=example-film) (30s, 16:9, motion graphics + collage b-roll):
 
 [![Reechee product demo](https://img.youtube.com/vi/84dbi9LvWwM/maxresdefault.jpg)](https://www.youtube.com/watch?v=84dbi9LvWwM)
 
@@ -196,4 +196,4 @@ MIT. See [LICENSE](LICENSE).
 
 ## Credits
 
-Built by [Noam Dorr](https://github.com/noamdorr). This sits on top of [Remotion](https://www.remotion.dev/), the React-based video framework that makes any of this possible.
+Built by [Noam Dorr](https://github.com/noamdorr), who also builds [Reechee](https://reechee.io/?utm_source=github&utm_medium=readme&utm_campaign=saas-product-demo-video&utm_content=credits). This sits on top of [Remotion](https://www.remotion.dev/), the React-based video framework that makes any of this possible.
