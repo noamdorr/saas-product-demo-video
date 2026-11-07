@@ -46,6 +46,56 @@ Then check the picture against the HD once: downscale every 4K frame and compare
 
 File size: ~45-90 MB for 28s.
 
+## Real motion blur
+
+The picture comes from `tools/mb/` through the `Master-Sub` composition (`src/SubClock.tsx`): every frame is rendered several times inside a 180-degree shutter and the samples are averaged in linear light. When to use it is in `animation-patterns.md`, "Real motion blur". It is the last step: review on the ordinary render until the motion is accepted, because this one takes minutes.
+
+The ordinary master comes first. It is the review copy, and it carries the audio:
+
+```bash
+npx remotion render Master out/master.mp4 --crf=14 --image-format=png --concurrency=8 --color-space=bt709
+ffmpeg -i out/master.mp4 -map 0 -c copy \
+  -bsf:v h264_metadata=transfer_characteristics=13 -color_trc iec61966-2-1 \
+  -movflags +write_colr+faststart out/master-tagged.mp4
+```
+
+Try it on one move before committing to the film. `--from` and `--to` are film frames, and `tile.py` shows every frame of the stretch:
+
+```bash
+node tools/mb/sample.mjs --out out/mb/test --from 500 --to 530 --n 12 --concurrency 8
+python3 tools/mb/tile.py out/mb/test 500 530 out/check/mb-strip.png
+```
+
+Then the whole film. A quarter-size pass with one sample per frame shows where things move, and the plan gives each frame what it needs, one sample where nothing moves and up to 24 on a whole-frame camera move:
+
+```bash
+node tools/mb/sample.mjs --out out/mb/base --n 1 --scale 0.25 --concurrency 8
+python3 tools/mb/plan.py out/mb/base out/mb/plan.json
+node tools/mb/sample.mjs --out out/mb/final --plan out/mb/plan.json --no-bundle --concurrency 8
+bash tools/mb/encode.sh out/mb/final out/master-tagged.mp4 out/master-mb.mp4
+for f in out/master-tagged.mp4 out/master-mb.mp4; do ffmpeg -v error -i "$f" -map 0:a -f s16le - | md5; done   # the two hashes match
+```
+
+- **Cost.** A 60 s HD film took 23,400 samples and 16 minutes at concurrency 8 on one Mac (about 24 samples per second) and left 1.5 GB of final frames. `plan.py` prints the total before you commit to it.
+- **Disk.** Only `--chunk` samples (default 720) sit on disk at once, and each chunk is deleted once blended (gotcha 88). The final frames stay until you delete them.
+- **Resuming and redoing.** A frame whose PNG is already in `--out` is skipped, so a killed run picks up where it stopped, and deleting one frame's PNG redoes it. After changing the film, use a new `--out` or empty the old one: frames already there are of the old film, and nothing says so.
+- **Checks.** `encode.sh` refuses a folder with a missing frame, because ffmpeg would quietly stop there. Run `tools/jerk.py` and `tools/sheets.py` on the result as on any render (`self-check.md`); a streak or a flash on one frame needs the full-rate strip from `tile.py`.
+- **A test stretch has no audio to copy:** the master's audio starts at its frame 0, so pass `-` in place of the audio source. A film at another rate passes it last: `encode.sh <frames> <audio> <out> 14 24`.
+- **WebGL.** A film with a three.js world passes `--gl angle` to every `sample.mjs` run (and `--gl=angle` to every render and still), or the samples are drawn by a different renderer than the review copy (gotcha 91, `3d-world.md`). Through the shutter the world's camera blurs like any other move, as long as the shot is a function of the fractional frame.
+- **Vertical.** Wrap `MasterVertical` in a `SubClock` composition of its own, as `Root.tsx` does for `Master-Sub`, and pass `--comp`.
+- **Footage.** A `<Video>` layer holds its decoded frame through the shutter (the blended frame came out identical to the one-sample frame), so b-roll keeps the blur it was shot with. A camera move on the layer still blurs.
+
+**4K, after the owner's yes.** The plan stays the same, but at `--scale 2` the final frames alone can fill a disk. `--segments` encodes each chunk to an MP4 and deletes its PNGs, and `join.sh` joins the chunks without re-encoding, with the HD's audio copied in:
+
+```bash
+node tools/mb/sample.mjs --out out/mb/4k --plan out/mb/plan.json --scale 2 --segments out/mb/segs --chunk 400 --crf 15 --concurrency 7
+bash tools/mb/join.sh out/mb/segs out/master-mb.mp4 out/master-mb-4k.mp4
+```
+
+The 60 s film's 23,400 samples took 64 minutes this way, 6.1 samples per second against about 24 at HD, and came to 72 MB. Downscaled against the HD the way the 4K section above checks it, the mean SSIM was 0.9924 and the worst frame 0.975. A stopped run resumes as long as `--chunk` stays the same, and a film not at 30 fps adds `--fps` to the first command. Join the chunks only this way (gotcha 90). A second film, built on a three.js world with `--gl angle`, took 38 minutes for 28,255 samples (12.2 samples per second) and came to 127 MB, mean SSIM 0.9921, worst 0.9755.
+
+The plan was made for HD, and at 4K the same move covers twice the pixels: in that film's fastest push a paused 4K frame at 100% showed faint stepped ghosts in the blur. Before a 4K that will be paused or stilled, double the samples on the frames the plan gave its maximum (gotcha 95).
+
 ## Copies for review and for the web
 
 - **A phone preview.** The owner reviews on a phone at night; a messaging app bounces files over about 30 MB. Render a `-preview` copy at `--crf=24`, name it as such, and say it is for viewing only. Never ship it.
@@ -238,6 +288,7 @@ Before calling the render "final":
 - [ ] `ffprobe` confirms expected resolution + duration, an audio stream, and `color_transfer=iec61966-2-1` on the tagged file.
 - [ ] `node tools/dump-timing.mjs`, then `tools/sheets.py`, `tools/jerk.py --planned <the README's ranges>` and `scripts/check-copy.mjs` ran on this render (`self-check.md`).
 - [ ] 4K, if made, carries the HD's audio (hashes match) and was made after the owner's yes.
+- [ ] Real motion blur, if used: the encoded film carries the ordinary master's audio (hashes match), and `tile.py` strips across every cut and fast move were looked at.
 - [ ] Watched in the target platform's player (not just Studio), by a person; the notes say nobody has watched it until they do.
 
 Then hand off.

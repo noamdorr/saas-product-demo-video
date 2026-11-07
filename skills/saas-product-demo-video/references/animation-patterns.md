@@ -330,7 +330,7 @@ Two easing words collide here, so once: an exit that **eases in** accelerates (s
 
 **Pair and vary the halves:** a push exit meets a push enter; a crop toward a clicked row meets a pull-back that opens on the matching element; a whip-left exit meets a whip-left enter. Six hard cuts, three pull-backs, two push-throughs and one whip read as a film; the same whip on every cut reads as a tic.
 
-Numbers that held up:
+Numbers that held up (the blur figures are for the ordinary render; under real motion blur the filter goes, see "Real motion blur" below):
 
 | Move | Numbers |
 |---|---|
@@ -341,6 +341,20 @@ Numbers that held up:
 | Pull-back | from 1.6 over 24 frames (the default for a pull-back), `slowInLand` |
 
 **Holds drift at an even speed.** A two-key camera (1.0 at the cut, 1.05 at the end) eased with `slowInLand` does three quarters of its move in the first fifth of the scene and then sits still, which reads as static. Leave hold segments linear (the default for a key without `ease`) and put `ease: "slowInLand"` on the key a pull-back lands on. For a crop that runs into a push exit, put the crop's last key on the scene's last frame (`duration`) with `ease: "rampIn"`, so the crop is still gathering speed under the exit; a crop that ends where the exit starts stops dead first, because the exit itself starts from zero speed.
+
+## Real motion blur
+
+A CSS or SVG blur is a guess at motion: one radius on one layer, whatever actually moved. A camera does something simpler. Its shutter stays open for part of each frame, and the picture records everything that happens in that time. `tools/mb/` does the same: it renders the film at several moments inside each frame's 180-degree shutter and averages them in linear light. Everything that moves blurs along its own path (a zoom radially, a cursor along its arc), whatever holds still stays pixel sharp, and a hard cut stays hard. It works because every scene is a pure function of its frame, and `SubClock` (`src/SubClock.tsx`) can freeze the film between frames. Commands and costs are in `render-export.md`.
+
+**When to use it.** Films with camera moves, whips, pushes or fast cursors, where the fake blur is carrying the transitions. It is the last step, once the motion is accepted: about 16 minutes for a 60 s HD film, and it changes the picture, never the timing, so everything before it is judged on the ordinary render. A film of holds, fades and slow type gains little, and the plan gives those frames few samples, so trying it costs little too. It does not repair a bad curve: it hides the steps between frames, and a move that stops dead still stops dead. Proven so far on one 60-second film, by render and measurement; the owner's verdict on that cut was still open when this was written.
+
+**The faked blur on camera moves goes.** With a real shutter, a filter on the same move blurs it twice, the second time in every direction, and costs render time on every sample.
+
+- `Stage` turns its filter off by itself: inside `SubClock`, `useRealBlur()` is true. The ordinary render keeps the filter, so the review copy reads close to the final.
+- Any blur your own scenes add to fake motion takes the same switch: `filter: useRealBlur() ? undefined : ...`. On one film that was a speed-keyed blur on a running calendar, its one-axis shutter filter, the streak overlays beside it, and a blur on words carried off the frame.
+- Blur that is not standing in for motion stays: a cross-blur under a dissolve, a soft type entrance, depth of field. No shutter makes those.
+
+**Scenes have to survive a fractional frame.** Nothing may index an array by frame (gotcha 83), and a move that ends at speed on a scene's last frame has to keep going inside that frame's shutter (gotcha 84). Run one fast stretch with `--n 12` before the whole film: the plan's first pass renders whole frames only, so it will not catch either.
 
 ## Depth planes
 
@@ -367,6 +381,14 @@ Things to know when using it:
 - The mask clips top and bottom only (a clip-path with a huge horizontal inset), so a word carried off by a whip is not cut at its line's side.
 - On a push exit of 1.6x and up, a headline near the frame's edge leaves the frame before the default dissolve finishes: set `dissolveLead` to 14 to 16 there.
 - When a card sits on the side a whip exit travels toward, the words slide behind it. Give that headline `exit="none"`; it still leaves with the camera.
+
+**At display size, the line is the composition** (`creative-direction.md`, "Type becomes composition"). The same move scaled up carried one film's rebuild: one line per scene at 110 to 185 px, placed against the picture rather than over a slab. What changed at that size, measured on that film:
+
+- **Each line its own mask**, padded so ascenders and the tilt are not cut: about 14 px on the left and top, 0.3 em below, 40 px on the right, `overflow: hidden`, and `perspective` of about 1,100 px on the line.
+- **Words rise out of the line's edge on a slight tilt**: `translateY` from 118% to 0 and `rotateX` from -52 degrees to 0 about the word's bottom edge, over 17 frames on an ease-out, 2.2 frames between words, lines 9 frames apart (a half beat at that tempo).
+- **The exit is one quiet move**: every word down and tilted the other way (to about 40 degrees) together over 11 frames, each line 1.2 frames after the one above. Not words carried off one by one over the next scene's motion.
+- **A word not yet risen keeps its space** (`visibility: hidden`), so the line's layout never shifts as words arrive.
+- **One weight, no italic, no colored word.** Size, line breaks and placement do the emphasis.
 
 ## Open tight on an element: translate, not only origin
 
@@ -414,6 +436,8 @@ Emphasis in a headline comes from size, weight and the line break. Setting a phr
 
 ## A camera through space, in code (a pinhole projection)
 
+For a whole film on one ground under one light, with real shadows and the camera moving between scenes, use three.js instead (`3d-world.md`). The projection below suits one scene's flat cards in depth.
+
 When a scene needs a camera that travels (along a timeline, over a floor), project it yourself rather than reaching for CSS 3D: one function, `screen = center + f * (world - camera) / (z - cameraZ)`, places every element, so lines, ticks, cards and labels cannot disagree. Scale a flat card by `f / dz` and draw it as a billboard. What a film that tried it learned:
 
 - **Sort by depth for the z-index**, not by list order, or a far card draws over a near one.
@@ -443,7 +467,7 @@ For a line like "the failures started weeks earlier", running the calendar backw
 - **Pan the stack sideways with the run** so the cell in focus stays at the frame's center (today was a Thursday, the event a Monday): `panX = 960 - cellCenterX(focus)`, interpolated across the run, and the camera origin stays at 960. Without it the landing cell sits at the frame's edge and the lean-in pushes it further out.
 - **Compute the dates.** "45 days before 3 March 2026" is 17 January; derive it, do not eyeball it, and log it.
 - **Brake late, not long.** A bezier with y1 0 and y2 1 cannot cruise and then stop firmly: `bezier(0.55, 0, 0.25, 1)` over a 53-frame run peaked at 0.4 of it and braked for a second, its last 20 frames still carrying 14% of the travel, so the stack crept through the month before the landing. Write the run as a speed profile and integrate it (sin² up for about 60%, flat for about 14%, cos² down over the last quarter, about 14 frames): the month before passes at speed and the landing month brakes in, still easing to zero speed. Keep the run's end frame, so the event cell lights on the same beat.
-- **Blur along the travel only.** CSS `blur()` softens both axes, so the running stack goes soft sideways too. An inline SVG filter, `<filter id="shutter"><feGaussianBlur stdDeviation="0 N"/></filter>` with `filter: url(#shutter)` on the stack, blurs vertically like a shutter: day numbers streak and the column gaps stay sharp, and one axis takes about 8 px before the run turns to mush (two axes, about 4).
+- **Blur along the travel only.** CSS `blur()` softens both axes, so the running stack goes soft sideways too. An inline SVG filter, `<filter id="shutter"><feGaussianBlur stdDeviation="0 N"/></filter>` with `filter: url(#shutter)` on the stack, blurs vertically like a shutter: day numbers streak and the column gaps stay sharp, and one axis takes about 8 px before the run turns to mush (two axes, about 4). Under real motion blur this filter and the speed-keyed one above it go: the shutter streaks the stack along its travel by itself.
 
 ## A match cut on a color
 

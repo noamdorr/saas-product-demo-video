@@ -79,6 +79,17 @@ Keep the previous render, so the user compares by watching.
 
 "I just wanted to do something else to make it look a bit more premium" came after a shipped film, with the owner's own ideas first: objects from the customers' world in the background, then their old stock library (a notification, someone frustrated, a few stock locations). Asked "what would you recommend?", the useful answer was craft on what is already there, ranked, each with its second and a time: the product UI as an object in space (`animation-patterns.md`, "Product UI in perspective"), removing idle motion (gotcha 51), a soft sound under the two or three biggest camera moves, a dithered lift in the backdrop. And what to skip, said plainly: more objects, more effects, more text, decoration behind the product cards (the empty field is usually the approved look), stock footage in a film whose look has none (`b-roll-integration.md`, "Before using a stock library"). The owner picked the first two. Their own idea survived as a drawing in the film's language (a drawing at the map's pin, `animation-patterns.md`), which is how an owner's idea that does not fit as asked usually lands.
 
+## When polish passes plateau
+
+If two passes of motion, finish or timing in a row each draw "better, but not there" ("good enough, not excellent", "it doesn't feel like someone paid for it"), the frames are the problem, and a third motion pass will not reach them. Stop touching motion and run a blind art-direction critique on stills first:
+
+1. **Blind.** A fresh agent, or a reviewer with no context: the stills only, eight to twelve of them across the film at full size (the frames from the contact sheet's key moments, not the cut frames alone). No brief, no notes, no history, no versions to compare. It judges what it sees, not what was intended or how far the film came.
+2. **Art direction, not polish.** Ask about composition, the world, tone, type and color across the set: does this read as one film, what is it made of, where does the eye go, what would a design lead cut. Design critique lenses for interfaces (bolder, typeset, layout, colorize) translate to film frames directly; motion is out of scope for this pass.
+3. **Read its findings against `creative-direction.md`, "The clean slide deck".** That was the finding on the film this came from: the same headline over a slab, no shared world, no tonal arc, the accent overspent. Ask for at most three changes, ranked, and what to leave alone (on that film, one scene's frame).
+4. **Pilot the biggest change on the opening only**, behind a switch, with copy, cues and sound unchanged, and show it beside the accepted cut. On the owner's yes, rebuild the rest in the new direction as forks of the scenes, leaving the old ones rendering the accepted film.
+
+A polish pass after the rebuild is cheap again; before it, it polishes the slide deck.
+
 ## Notes that arrive one at a time
 
 When the owner says "more notes coming, batch them", build each note in source as it arrives and check it in stills (and a short render of the moment, for the abrupt-change check), but render the film once, when they say so. When you open that render, name every change with its time in the film: handed a render with "the warehouse in the proof", one owner asked "where's the warehouse on the map zoom-in?", because the film had two zoom-ins and they had watched the half-size comparison.

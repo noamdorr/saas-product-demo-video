@@ -20,6 +20,7 @@
 // --out <dir>     where stills go (default out/check)
 // --scale <n>     render scale (1 = the composition's size)
 // --props <json>  input props, e.g. '{"debugClicks":true}' for DebugClickTargets
+// --gl <renderer> Chrome's OpenGL renderer, e.g. angle for a scene drawn with WebGL
 // The sheet needs python3 with Pillow (pip install pillow).
 
 import { bundle } from "@remotion/bundler";
@@ -53,7 +54,8 @@ mkdirSync(outDir, { recursive: true });
 
 const inputProps = opts.props ? JSON.parse(opts.props) : undefined;
 const serveUrl = await bundle({ entryPoint: path.resolve("src/index.ts"), onProgress: () => {} });
-const composition = await selectComposition({ serveUrl, id: compId, inputProps });
+const chromiumOptions = opts.gl ? { gl: opts.gl } : undefined;
+const composition = await selectComposition({ serveUrl, id: compId, inputProps, chromiumOptions });
 
 let frames = [];
 for (const p of pos.slice(1)) {
@@ -93,6 +95,7 @@ for (const frame of frames) {
     scale,
     imageFormat: "png",
     inputProps,
+    chromiumOptions,
     onBrowserLog: (l) => {
       if (l.text.startsWith("PROBE ")) console.log(l.text);
     },

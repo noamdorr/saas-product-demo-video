@@ -14,7 +14,7 @@ It was built and used in production with Claude Code. v2 follows the open [Agent
 - A render-and-check loop: stills from one bundle, contact sheets, cut strips, a jerk report, an attention pass and a word count, run by the agent before you see anything
 - Animation primitives (TypedText, MaskReveal, PopIn, ZoomPunch, Cursor, Counter, IceCrack, BRollLayer) and sound effects measured onto their events
 - Schematic UI templates for products without a real UI
-- Iteration discipline from a 24-wave production: every candidate behind a switch, locked decisions, test beds beside the master, a handoff template for the next session, and 80 gotchas with symptom, cause and fix
+- Iteration discipline from a 24-wave production: every candidate behind a switch, locked decisions, test beds beside the master, a handoff template for the next session, and 90 gotchas with symptom, cause and fix
 
 ## Example output
 
@@ -135,15 +135,16 @@ skills/saas-product-demo-video/
 │   ├── writing-style.md           # Em-dashes and other AI-tells to avoid
 │   ├── iteration-playbook.md      # Fix waves, switches, locked decisions, when to stop
 │   ├── delegation.md              # Splitting a film across scene agents in one session
-│   ├── render-export.md           # HD/4K render commands
+│   ├── render-export.md           # HD/4K render commands, real motion blur
+│   ├── 3d-world.md                # One three.js world, camera and light under the whole film
 │   ├── vertical-port.md           # 9:16 porting and platform safe areas
-│   └── gotchas.md                 # 80 numbered gotchas: symptom, cause, fix
+│   └── gotchas.md                 # 96 numbered gotchas: symptom, cause, fix
 ├── assets/
 │   ├── scaffold/                  # A complete Remotion project to copy
 │   │   ├── src/                   #   Master, Root, timing, theme, easings, scene-frames,
 │   │   │                          #   TypedText, MaskReveal, PopIn, ZoomPunch, Cursor, Sfx
 │   │   └── tools/                 #   stills.mjs, sheets.py, jerk.py, dump-timing.mjs:
-│   │                              #   the render-and-check loop
+│   │                              #   the render-and-check loop; mb/: real motion blur
 │   ├── components/                # Optional pieces: Stage, Title, Counter, IceCrack, Marker,
 │   │                              #   BRollLayer, FloatingElements, TestBed, DebugClickTargets,
 │   │                              #   Schematic* cards, MasterVertical
@@ -159,6 +160,7 @@ skills/saas-product-demo-video/
     ├── check-typing-budget.py      # Verify typing fits in its scene before render
     ├── check-copy.mjs              # Count and check the film's words before a render
     ├── check-sfx.py                # Check every sound cue against its event
+    ├── check-contrast.py           # Contrast of text on color, from hexes or a still
     ├── measure-lead.py             # Measure a sound file's lead before its hit
     ├── make-sfx.sh                 # Synthesize a neutral set of interface sounds with ffmpeg
     ├── analyze-reference-video.sh  # Gemini wrapper for YouTube analysis

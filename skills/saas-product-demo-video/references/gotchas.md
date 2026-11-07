@@ -84,6 +84,22 @@ Each entry is a symptom, its cause and the fix; read the one you hit, in full. E
 - [78. `filter: blur()` on a large layer is slow and smears](#78-filter-blur-on-a-large-layer-is-slow-and-smears)
 - [79. A raster drawn larger than its source goes soft at `--scale=2`](#79-a-raster-drawn-larger-than-its-source-goes-soft-at---scale2)
 - [80. The checkout may be on a feature branch](#80-the-checkout-may-be-on-a-feature-branch)
+- [81. Before Remotion 4.0.528, a Sequence blanks between its last frame and the next one's first](#81-before-remotion-40528-a-sequence-blanks-between-its-last-frame-and-the-next-ones-first)
+- [82. The clock stops at the composition's last frame](#82-the-clock-stops-at-the-compositions-last-frame)
+- [83. Never index an array by frame](#83-never-index-an-array-by-frame)
+- [84. A move clamped on a scene's last frame goes sharp there](#84-a-move-clamped-on-a-scenes-last-frame-goes-sharp-there)
+- [85. A 180-degree forward shutter keeps hard cuts hard](#85-a-180-degree-forward-shutter-keeps-hard-cuts-hard)
+- [86. Average in linear light](#86-average-in-linear-light)
+- [87. Dither only where samples differ](#87-dither-only-where-samples-differ)
+- [88. PNG samples fill a disk fast](#88-png-samples-fill-a-disk-fast)
+- [89. transitions.dev and Emil Kowalski's skills are web-UI sources](#89-transitionsdev-and-emil-kowalskis-skills-are-web-ui-sources)
+- [90. Joining MP4 chunks: snap the timestamps to the frame grid](#90-joining-mp4-chunks-snap-the-timestamps-to-the-frame-grid)
+- [91. A WebGL scene needs the ANGLE backend on every render path](#91-a-webgl-scene-needs-the-angle-backend-on-every-render-path)
+- [92. A WebGL canvas under a CSS scale goes soft](#92-a-webgl-canvas-under-a-css-scale-goes-soft)
+- [93. A layer under a dark world shows through before its reveal](#93-a-layer-under-a-dark-world-shows-through-before-its-reveal)
+- [94. A tall object near the frame's edge leans unless the camera aims at it](#94-a-tall-object-near-the-frames-edge-leans-unless-the-camera-aims-at-it)
+- [95. A motion-blur plan made at HD under-samples the fastest moves at 4K](#95-a-motion-blur-plan-made-at-hd-under-samples-the-fastest-moves-at-4k)
+- [96. A label that passes the eye can measure 1.31 to 1](#96-a-label-that-passes-the-eye-can-measure-131-to-1)
 
 The specific things that will eat 2+ hours each if you don't know about them.
 
@@ -461,7 +477,7 @@ A scaffold reused in a folder with an old `out/check/` showed last version's con
 
 ## 78. `filter: blur()` on a large layer is slow and smears
 
-A blur over a 900 px layer costs 20 to 40 ms per frame and reads as a smear mid-frame. Blur text or small elements only, for 0.4 s at most; a whip's blur belongs on the Stage (`Stage.tsx`), which keeps it short and only while moving.
+A blur over a 900 px layer costs 20 to 40 ms per frame and reads as a smear mid-frame. Blur text or small elements only, for 0.4 s at most; a whip's blur belongs on the Stage (`Stage.tsx`), which keeps it short and only while moving. For the final picture, real motion blur replaces it (`animation-patterns.md`).
 
 ## 79. A raster drawn larger than its source goes soft at `--scale=2`
 
@@ -470,6 +486,70 @@ A 64 px platform logo drawn at 80 px looked fine at 1080p and soft in 4K; portra
 ## 80. The checkout may be on a feature branch
 
 The product's repository was on a branch when the site's look was read from it, so the film copied a design that was not live. After `git fetch`, read the live look's source of truth with `git show origin/main:<path>` and record the commit and the fetch time in the brief ("live homepage, fetched 00:08, deploy from 23:43"); the owner will ask whether today's site was checked.
+
+## 81. Before Remotion 4.0.528, a Sequence blanks between its last frame and the next one's first
+
+Under a fractional clock, the samples of a scene's last frame land after its last integer frame. Older Remotion had already unmounted the `<Sequence>` there, so that frame shows the master's background: on 4.0.527, the last frame before a test cut was 100% background, a one-frame flash on every cut. Remotion 4.0.528 gave the Sequence an exclusive end, and the scaffold pins 4.0.532, where the same test shows no trace of the background (with `layout="none"` too). On an older pin, upgrade, or add 1 to every scene Sequence's `durationInFrames` and give each scene an opaque background, because the next scene paints over the extra frame. To check any version, set the master's background to a color the film does not use and render one scene's last frame: `--from <last> --to <last> --n 12`.
+
+## 82. The clock stops at the composition's last frame
+
+Remotion clamps the time to the composition's length, inside `Freeze` too, with no error. A SubClock composition as long as its sample list rendered frame 0 when asked for frame 5, because that chunk held one sample and the length was 1. As long as the film exactly, the last frame stops moving at its integer. The length has to reach past the film whatever the chunk holds: `Math.max(TOTAL_FRAMES + 1, times.length)`, as `Root.tsx` does.
+
+## 83. Never index an array by frame
+
+`cameras[frame]` is `undefined` at 14.25, so the first sample inside a shutter crashes or goes NaN. A precomputed table (a camera path, word timings) interpolates between its entries: `lerp(t[Math.floor(f)], t[Math.floor(f) + 1], f % 1)`. The same habit fails quietly elsewhere: `Math.floor(frame)` holds still inside the shutter, so that element stays sharp while everything around it blurs; `frame === CLICK` is false at every sample once a frame takes more than one, so write `frame >= CLICK`; `random(frame)` is a new number per sample, and the average of those is grey noise, so seed with `Math.floor(frame)`. The plan's first pass renders whole frames only and will not catch any of this. Run a stretch with `--n 12`.
+
+## 84. A move clamped on a scene's last frame goes sharp there
+
+An exit ends at full speed on the scene's last frame, and `interpolate(..., { extrapolateRight: "clamp" })` stops it on that integer, so nothing moves inside that frame's shutter: the fastest frame of the move comes out the sharpest. A box at 40 px per frame had 36 px of streak on the frame before and none on the last; a Stage whip had 98 and none. `extrapolateRight: "extend"` gets a linear move going again, but `Easing.bezier` clamps its own input, so an eased move still stops. Carry the curve on past 1 at its final speed by hand, as `EXIT_EASE` in `Stage.tsx` does (that whip's last frame then had 112 px). A move that settles to rest does not care. The ordinary render never reaches those times, so nothing changes there.
+
+## 85. A 180-degree forward shutter keeps hard cuts hard
+
+A shutter centered on the frame reaches back into the frame before it, and on a cut that is the previous scene: a hard cut turns into a one-frame dissolve. `sample.mjs` puts every sample in `[F, F + 0.5)`, so a frame only ever sees its own scene. On a test cut, the last frame before it held no trace of the next scene and the first after it was 100% the next scene. The cost is that the exposure centers a quarter frame late, about 8 ms at 30 fps. Half the frame is also the classic film shutter: longer smears more, and nothing here needs it.
+
+## 86. Average in linear light
+
+Averaging the stored sRGB values greys an edge. Where a black box covers half the shutter over white, the stored average is 127 and the linear one, stored back, is 187, which is what a camera records: a dark edge moving over white thins rather than greys out. Averaging the stored values makes every moving dark shape look heavier and dirtier. `blend.py` works in linear light; `--gamma` on `sample.mjs` renders the wrong way, to compare.
+
+## 87. Dither only where samples differ
+
+The average of many samples has more depth than 8 bits, and dithering under the rounding keeps it in a soft gradient. Over a whole frame, though, the dither touches pixels that never moved: on held colors about 1 value in 86,000 came out off by one, about 72 values per 1080p frame, frame after frame, all of them noise for the encoder. `blend.py` copies any pixel every sample agrees on and dithers the rest. Held frames and the still parts of moving frames stay byte-exact against the ordinary render, so a diff between the two shows exactly what moved: on one test frame, 7,600 of 921,600 pixels, all in the moving box's path.
+
+## 88. PNG samples fill a disk fast
+
+A 60 s HD film took 23,400 samples. Its 1,800 final frames alone came to 1.5 GB, so the samples at the same size per PNG would have been about 20 GB, on a machine with 10 GB free. `sample.mjs` works in chunks and deletes each one once blended: `--chunk 720`, the default, holds about 600 MB at HD and about 2.4 GB at 4K by the same arithmetic. At 4K the final frames become the problem, about 6 GB by that arithmetic: `--segments` encodes each chunk and deletes its frames too, and that film's 4K ended at 72 MB. A killed run leaves its last chunk in `--out/_tmp`; the next run clears it. Check `df -h` first, and delete the final frames once the encoded film is checked.
+
+## 89. transitions.dev and Emil Kowalski's skills are web-UI sources
+
+Both are libraries of CSS transitions and rules for product interfaces, and neither pastes into Remotion: a film has no CSS transition, since every frame is computed, and no hover or loading state to attach one to. What transfers is the numbers and the rules, such as a modal rising from a scale of 0.955 or a stagger whose delays shrink along the line. The film's product panels are UI, so those apply to them directly. Read them for that, and rebuild the move with `interpolate`. Leave the components the film has no reason for (skeleton loaders, toasts, tooltips, a card tilting with the cursor): with no hover and no loading state in the story, they are tricks, not polish.
+
+## 90. Joining MP4 chunks: snap the timestamps to the frame grid
+
+A 1,800-frame 4K film rendered in chunks has to become one file without re-encoding, and the two obvious ways are both wrong. Concatenating the MP4s directly left the timestamps jittering by a fraction of a millisecond per chunk, and a tool that counts frames by timestamp sees a different film: `ssim` against the HD saw 1,801 frames and scored 0.982. Going through a raw H.264 stream broke B-frame order: 1,798 frames, non-monotonic timestamps. Snapping every timestamp to the frame grid on the way through the concat gave exactly 1,800 frames, 60.000 s and a mean SSIM of 0.9924: `setts=pts=round(PTS/512)*512:dts=round(DTS/512)*512`, where 512 is one frame at 30 fps in x264's 1/15360 timebase. `tools/mb/join.sh` does this. It works out the grid from the segments, refuses a gap or an overlap, and checks the frame count at the end. A short test will not always show the fault: three chunks of a 135-frame film joined clean either way, while twenty chunks of 7 frames left 114 of the 135 timestamps off the grid and `ssim` saw 136 frames.
+
+## 91. A WebGL scene needs the ANGLE backend on every render path
+
+A scene drawn with three.js renders through Chrome's GPU path, and every way the film gets rendered has to ask for the same one: `npx remotion render ... --gl=angle`, `npx remotion still ... --gl=angle`, `node tools/stills.mjs ... --gl angle` and `node tools/mb/sample.mjs ... --gl angle`. One path left on the default makes that path's frames disagree with the others, and the disagreement looks like a picture change when it is a renderer change. Put the flag in every command in the project's notes, and in `remotion.config.ts` (`Config.setChromiumOpenGlRenderer("angle")`) for Studio and the plain CLI. `3d-world.md` has the setup.
+
+## 92. A WebGL canvas under a CSS scale goes soft
+
+A Stage's slow push scales its children, and a WebGL canvas inside it is a bitmap: scaled up 3%, it is resampled and every fat line and window dot softens. The world already has a camera. Undo the Stage's scale on the canvas's container (scale it by `1 / s` about the same origin) and move the world's camera for the push instead; keep the DOM layers above it on the Stage.
+
+## 93. A layer under a dark world shows through before its reveal
+
+Cells of a calendar laid under a near-black ground showed faintly through it for several frames before the light that was meant to reveal them arrived, because the world's canvas did not cover them exactly and the cells were drawn on a lighter ground of their own. Give the layer underneath the same clip as the reveal (the same disc or mask, the same frames), so it cannot be seen until the reveal shows it.
+
+## 94. A tall object near the frame's edge leans unless the camera aims at it
+
+A tall object placed beside a column of copy by aiming the camera at a point between the two leaned toward the frame's center: perspective converges every vertical toward the point the camera looks at, and near the edge the lean is obvious. Aim the camera at the object itself, then move the picture with the lens's shift (`setViewOffset`, `fit()` in `3d-world.md`) until the object sits where the layout wants it. Its verticals stay parallel to the frame's edges, as a shift lens keeps them in architectural photography.
+
+## 95. A motion-blur plan made at HD under-samples the fastest moves at 4K
+
+`plan.py` sizes each frame's samples from how far things move at HD. At `--scale 2` the same move covers twice the pixels, so where the plan gave the most (a whole-frame push), the gaps between samples double too. On one 60 s film the 4K from the HD plan measured a mean SSIM of 0.9921 against the HD downscaled, worst frame 0.9755, and a paused 4K frame in the fastest push still showed faint stepped ghosts in its blur at 100%. At speed it is unlikely to show. If it matters, double the samples on the frames the plan gave its maximum (or re-plan from a quarter-size pass of the 4K) before the 4K run; check by pausing on the fastest frame at full size.
+
+## 96. A label that passes the eye can measure 1.31 to 1
+
+A label chip set in a light gray on a slightly darker gray panel looked fine in stills for several versions and measured 1.31:1, about a third of what a label needs. The same chip in the accent red on that panel read as brown. The eye forgives low contrast in a still it already knows how to read; a viewer seeing it once at speed does not. Measure every text-on-color pair with `scripts/check-contrast.py` (`--image` samples it from a rendered still): 4.5:1 for labels, 3:1 for display type. The fix on that film was a white chip with ink type, and red only on white.
 
 ## The meta-gotcha: Studio ≠ final render
 

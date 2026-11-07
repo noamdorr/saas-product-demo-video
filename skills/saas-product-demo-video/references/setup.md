@@ -34,6 +34,8 @@ If the user prefers a system-wide install, tell them what you are about to insta
 
 **Pillow** (`pip install pillow`, or into the same virtual environment as librosa), for the contact sheets that `tools/stills.mjs --sheet` and `tools/sheets.py` tile. Without it the stills still render, one PNG each.
 
+**numpy and Pillow** in the same environment, for real motion blur (`tools/mb/`, `render-export.md`). Set `PYTHON=.venv/bin/python` when they live in a virtual environment. The film renders without them, with no motion blur.
+
 **Playwright** (`npm i -D playwright`; it drives the installed Chrome through `channel: "chrome"`), only when the product's UI is captured from its public site (`product-ui-from-site.md`). Say what you are installing before you do.
 
 ```bash

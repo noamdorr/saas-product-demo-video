@@ -45,7 +45,8 @@ video/
 ├── beats.json            # placeholder until detect-beats.py writes the real one
 ├── public/               # create it: soundtrack.mp3, logo, b-rolls go here
 ├── tools/                # stills.mjs (one bundle, many frames), dump-timing.mjs (the scene table),
-│                         # sheets.py (contact sheet, cut strips), jerk.py (abrupt-change check)
+│                         # sheets.py (contact sheet, cut strips), jerk.py (abrupt-change check),
+│                         # mb/ (real motion blur: sample.mjs, plan.py, blend.py, encode.sh, join.sh, tile.py)
 └── src/
     ├── index.ts          # registerRoot(RemotionRoot)
     ├── Root.tsx          # font loading, Master + one debug composition per scene
@@ -53,6 +54,7 @@ video/
     ├── timing.ts         # beat grid from beats.json, and the scene list
     ├── easings.ts        # named Easing.bezier() presets
     ├── scene-frames.ts   # master frame <-> scene-local frame helpers
+    ├── SubClock.tsx      # the film at arbitrary times, the clock behind real motion blur
     ├── Master.tsx        # soundtrack + one <Sequence> per scene
     ├── components/       # Cursor, TypedText, MaskReveal, PopIn, ZoomPunch
     └── scenes/

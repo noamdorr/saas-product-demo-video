@@ -5,19 +5,24 @@
 # Usage:
 #   verify-scaffold.sh            copy, install, typecheck
 #   verify-scaffold.sh --render   also render one still of the example scene
+#   verify-scaffold.sh --motion-blur
+#                                 also take the example film through tools/mb end to
+#                                 end (needs python3 with numpy and Pillow, and ffmpeg)
 #
 # Runs from any directory. Everything is written to a fresh temp directory,
 # never into the skill folder. The temp directory is removed at the end,
-# except with --render (so the still can be opened) or when a step fails
-# (so the failure can be inspected).
+# except with --render or --motion-blur (so the output can be opened) or when a
+# step fails (so the failure can be inspected).
 
 set -euo pipefail
 
 RENDER=0
+MOTION_BLUR=0
 for arg in "$@"; do
   case "$arg" in
     --render) RENDER=1 ;;
-    *) echo "Usage: $0 [--render]" >&2; exit 2 ;;
+    --motion-blur) MOTION_BLUR=1 ;;
+    *) echo "Usage: $0 [--render] [--motion-blur]" >&2; exit 2 ;;
   esac
 done
 
@@ -68,7 +73,28 @@ if [[ "$RENDER" -eq 1 ]]; then
     exit 1
   fi
   echo "Still: $STILL"
-else
+fi
+
+if [[ "$MOTION_BLUR" -eq 1 ]]; then
+  echo "==> Real motion blur, end to end"
+  node tools/mb/sample.mjs --out out/mb/base --n 1 --scale 0.25
+  python3 tools/mb/plan.py out/mb/base out/mb/plan.json
+  node tools/mb/sample.mjs --out out/mb/final --plan out/mb/plan.json --no-bundle
+  bash tools/mb/encode.sh out/mb/final - out/master-mb.mp4
+  FRAMES_IN="$(ls out/mb/final | grep -c '^f[0-9]*\.png$')"
+  FRAMES_OUT="$(ffprobe -v error -select_streams v:0 -show_entries stream=nb_frames -of csv=p=0 out/master-mb.mp4)"
+  if [[ "$FRAMES_IN" -lt 2 || "$FRAMES_IN" != "$FRAMES_OUT" ]]; then
+    echo "ERROR: $FRAMES_IN blended frames but $FRAMES_OUT encoded" >&2
+    exit 1
+  fi
+  echo "Motion blur: $WORK/out/master-mb.mp4 ($FRAMES_OUT frames)"
+
+  echo "==> Real motion blur in segments, as for 4K"
+  node tools/mb/sample.mjs --out out/mb/seg-frames --segments out/mb/segs --from 40 --to 70 --n 4 --chunk 40 --crf 18 --no-bundle
+  bash tools/mb/join.sh out/mb/segs - out/master-mb-joined.mp4
+fi
+
+if [[ "$RENDER" -eq 0 && "$MOTION_BLUR" -eq 0 ]]; then
   KEEP=0
 fi
 

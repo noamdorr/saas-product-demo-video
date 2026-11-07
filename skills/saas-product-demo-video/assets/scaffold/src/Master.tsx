@@ -41,7 +41,7 @@ export const SoundLayer: React.FC<{ sfx?: boolean }> = ({ sfx = true }) =>
     </>
   );
 
-export const Master: React.FC<{ sfx?: boolean }> = ({ sfx = true }) => {
+export const Master: React.FC<{ sfx?: boolean; music?: boolean }> = ({ sfx = true, music = true }) => {
   const frame = useCurrentFrame();
   const volume = interpolate(
     frame,
@@ -52,7 +52,7 @@ export const Master: React.FC<{ sfx?: boolean }> = ({ sfx = true }) => {
 
   return (
     <AbsoluteFill style={{ background: colors.background }}>
-      {SOUNDTRACK && (
+      {SOUNDTRACK && music && (
         <Audio src={staticFile(SOUNDTRACK)} trimBefore={AUDIO_TRIM} volume={volume} />
       )}
       <SoundLayer sfx={sfx} />

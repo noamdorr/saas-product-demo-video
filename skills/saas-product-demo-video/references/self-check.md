@@ -31,6 +31,8 @@ Then open each PNG and look at it. The script renders nearby frames in one pass,
 - **Text fits.** No line wraps that the brief shows as one line, nothing is clipped by its container, no two text blocks overlap.
 - **Nothing leaves the frame.** No element is cut by the edge unless the scene intends it. For a vertical cut, nothing important sits where the platform draws its own interface (see `vertical-port.md`).
 - **The words are right.** Compare on-screen text with the brief character by character: spelling, punctuation, capitalization. Run the check in `writing-style.md`.
+- **Text on color is measured.** For every pair of text color and the ground it sits on (a label on a panel, a chip on the map, a line over each of the film's tones), `scripts/check-contrast.py --image <still> --text x,y --ground x,y`: 4.5:1 for labels, 3:1 with `--large` for display type. A label the eye had passed for several versions measured 1.31:1 (gotcha 96).
+- **One accent per frame.** Count the elements in the accent color; more than one is a finding unless the brief says why (`creative-direction.md`).
 - **The brand loaded.** The display font is the brand font and not a fallback (a fallback usually shows as a different letter shape and width). Colors match the theme. A raster logo is sharp at its displayed size.
 - **Consistency with the scene before.** Same margins, same type sizes for the same role, same card style.
 

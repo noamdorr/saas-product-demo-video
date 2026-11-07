@@ -53,6 +53,8 @@ If nobody is there to answer (an unattended run), answer the intake from the mat
 
 Owners name it in one word ("claudesque", "Canva", "cheap") and it is a set of defaults: a cream canvas with a serif on it, glows and blobs, one italic or colored word in a headline, eyebrow labels, hub-and-spoke diagrams, clip-art glyphs, an invented dashboard when the real one is on the site, a trick per scene, something popping on every beat, idle bobbing, text that fades in and sits. Every hex can come from the brand file and the film still reads as one more of them. The full list, what replaced each item on a film that shipped, and the one-signature-move rule are in `references/creative-direction.md`, "What reads as a template". Read it before the first scene and again before any "more premium" pass.
 
+A film can clear that list and still read as a clean slide deck: the same headline over a slab, no shared world, no tonal arc, the accent on everything. When two polish passes in a row draw "better, not there", stop touching motion and run a blind art-direction critique on stills (`references/iteration-playbook.md`, "When polish passes plateau"). On the film it came from, the answer was one shared 3D world, tone carrying the plot, type as composition and one accent per frame (`references/creative-direction.md`, `references/3d-world.md`).
+
 ## The cut frame carries a picture
 
 Every cut lands on a backbeat, and the frame it lands on has to be composed: the card with its first row, the bar, or the headline, not an empty rectangle that fills over the next beats. One composed element is enough: with the card there on the cut, the headline beside it may rise on a beat. First drafts and scene agents put the first row on the first beat after the cut, and a film then opens six scenes in a row on blank white. The rule, the pre-roll trick for counters and chip fields, and the camera moves that join scenes are in `references/animation-patterns.md`.
@@ -113,6 +115,7 @@ Load what the current step needs, one file at a time. Reading many at once crowd
 | No real UI to show | `schematic-ui-fidelity.md` |
 | Look, argument, a "more premium" or "generic" note | `reference-video-vibe.md`, `creative-direction.md`, `reference-atlas.md` |
 | Planning shots and the energy curve | `shot-design.md`, `motion-language.md` |
+| Polish has plateaued; one world under the whole film | `iteration-playbook.md` ("When polish passes plateau"), `creative-direction.md`, `3d-world.md` |
 | Timing | `beat-sync.md`; no soundtrack yet: `music-sourcing.md` |
 | Project setup | `project-scaffold.md`, `gotchas.md` (contents list at the top) |
 | Building scenes | `animation-patterns.md`, `cursor-math.md`, `click-positioning.md` |
@@ -121,9 +124,9 @@ Load what the current step needs, one file at a time. Reading many at once crowd
 | Sound effects (read before adding any) | `sound-effects.md` |
 | Checking | `self-check.md`, `taste-review.md` |
 | Fixing, reskinning, rebuilding, handing off | `iteration-playbook.md`, `assets/prompt-templates/handoff.md` |
-| Export, vertical cut | `render-export.md`, `vertical-port.md` |
+| Export, vertical cut, real motion blur | `render-export.md`, `vertical-port.md`; when to use the blur: `animation-patterns.md` |
 
-Also in this skill: `assets/scaffold/` (a ready Remotion project, with `tools/` for stills from one bundle, the scene table, contact sheets, cut strips and a jerk check), `assets/components/` (optional pieces: the Stage camera with enter and exit moves and depth planes, the Title text move, a test bed for judging a scene in context, counter, marker, sound effects, click-target overlay, b-roll layer, schematic UI cards, vertical master), `assets/prompt-templates/` (the intake questionnaire, the brief, a checkpoint page, the scene brief for sub-agents, the handoff), and `scripts/` (beat detection, event alignment, typing budget, the word count and copy tells, reference-video analysis, still rendering, sound effects (a synthesizer for the hits the library lacks, a lead measure per file, and a placement and level check on two renders), side-by-side comparison clips, scaffold verification).
+Also in this skill: `assets/scaffold/` (a ready Remotion project, with `tools/` for stills from one bundle, the scene table, contact sheets, cut strips, a jerk check and real motion blur), `assets/components/` (optional pieces: the Stage camera with enter and exit moves and depth planes, the Title text move, a test bed for judging a scene in context, counter, marker, sound effects, click-target overlay, b-roll layer, schematic UI cards, vertical master), `assets/prompt-templates/` (the intake questionnaire, the brief, a checkpoint page, the scene brief for sub-agents, the handoff), and `scripts/` (beat detection, event alignment, typing budget, the word count and copy tells, a contrast check for text on color, reference-video analysis, still rendering, sound effects (a synthesizer for the hits the library lacks, a lead measure per file, and a placement and level check on two renders), side-by-side comparison clips, scaffold verification).
 
 ## When this is the wrong tool
 

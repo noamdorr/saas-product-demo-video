@@ -23,6 +23,7 @@ Give evidence and consequences rather than unsupported numerical taste scores. A
 ## Diagnose before prescribing effects
 
 - Repeated panels may need a developing argument, not more camera travel.
+- Two polish passes that each drew "better, not there" mean the frames are the problem: a blind art-direction critique on stills comes before any more motion work (`iteration-playbook.md`, "When polish passes plateau"; the usual finding is `creative-direction.md`, "The clean slide deck").
 - Boring text may mean weak copy, repeated hierarchy, poor reading contrast or mismatched motion. Test the cause before changing every reveal.
 - Jerkiness may come from competing events, hard landings, a mismatched cut, grid alignment or a render defect. Inspect the interval.
 - Premium may mean fewer distractions, better composition, material character or a memorable idea. Anchor the interpretation in the brief and visible evidence.

@@ -71,11 +71,14 @@
 //   (This is why a Move has no origin of its own: one origin per Stage.)
 //
 // The blur is applied only while a move is in progress, so held frames stay
-// pixel sharp.
+// pixel sharp. It stands in for a shutter: under real motion blur (SubClock,
+// references/render-export.md) it stays off, and the exit keeps moving through
+// its last frame's shutter instead of stopping on the integer (gotchas.md 84).
 
 import React, { createContext, useContext } from "react";
 import { AbsoluteFill, Easing, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 import { easings } from "../easings";
+import { useRealBlur } from "../SubClock";
 
 export type Ease = keyof typeof easings | "linear";
 /** `ease` is the curve of the segment that ends on this key (default: linear, an even drift). */
@@ -124,12 +127,16 @@ export type StageState = {
   ox: number;
   oy: number;
   enter: { kind: MoveKind; frames: number; p: number }; // p: 0 on the cut, 1 settled
-  exit: { kind: MoveKind; frames: number; start: number; p: number }; // p: 0 before the move, 1 on the last frame
+  exit: { kind: MoveKind; frames: number; start: number; p: number }; // p: 0 before the move, 1 on the last frame (past 1 only inside its shutter)
 };
 
 // The two halves of a move: the exit eases in (full speed on the cut), the
 // entrance eases out (leaves the cut at speed, then settles).
-const EXIT_EASE = Easing.bezier(0.5, 0, 0.9, 0.55);
+const EXIT_CURVE = Easing.bezier(0.5, 0, 0.9, 0.55);
+// Past 1 only between the exit's last frame and the cut, inside its shutter.
+// Easing.bezier clamps its input, so the curve is carried on at its final speed by hand.
+const EXIT_END_SPEED = (1 - 0.55) / (1 - 0.9);
+const EXIT_EASE = (p: number) => (p <= 1 ? EXIT_CURVE(p) : 1 + (p - 1) * EXIT_END_SPEED);
 const ENTER_EASE = Easing.bezier(0.12, 0.6, 0.3, 1);
 const WHIP_TRAVEL_OUT = 0.3; // of the frame width, on the exit's last frame
 const WHIP_BLUR_OUT = 8; // px on the exit's last frame: the ceiling
@@ -180,6 +187,7 @@ export const Stage: React.FC<StageProps> = ({
 }) => {
   const frame = useCurrentFrame();
   const { width: W, height: H } = useVideoConfig();
+  const realBlur = useRealBlur();
 
   const camScale = track(frame, camera, (k) => k.scale, 1);
   const camX = track(frame, camera, (k) => k.x, 0);
@@ -219,7 +227,7 @@ export const Stage: React.FC<StageProps> = ({
   const xf = exit.frames ?? 9;
   const exitStart = duration - xf;
   const exitP =
-    exit.kind === "cut" ? 0 : interpolate(frame, [exitStart, duration - 1], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+    exit.kind === "cut" ? 0 : interpolate(frame, [exitStart, duration - 1], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "extend" });
   if (exit.kind !== "cut" && exitP > 0) {
     const e = EXIT_EASE(exitP);
     if (exit.kind === "whip-left") {
@@ -237,7 +245,7 @@ export const Stage: React.FC<StageProps> = ({
   const scale = camScale * enterScale * exitScale;
   const x = camX + enterX + exitX;
   const y = camY + enterY;
-  const blur = Math.max(enterBlur, exitBlur);
+  const blur = realBlur ? 0 : Math.max(enterBlur, exitBlur);
   const { ox, oy } = parseOrigin(origin, W, H);
 
   const state: StageState = {

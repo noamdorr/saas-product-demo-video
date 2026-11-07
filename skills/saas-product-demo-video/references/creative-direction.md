@@ -54,6 +54,32 @@ What replaced each of them on the film that shipped: an ink field with white car
 
 One signature move per film. Everything else is entrances, holds, cuts and the camera. Three set pieces is noise; the reference films that look expensive each have one, and earn it with a three-stage event.
 
+## The clean slide deck
+
+A film can clear every item above, be well cut and smoothly moved, and still read as a clean Keynote. That is the failure to look for once polish stops helping (`iteration-playbook.md`, "When polish passes plateau"). Its signs, all visible in stills:
+
+- **The deck skeleton.** The same composition scene after scene: a headline over a slab (a card or panel centered on a backdrop), for half the film or more.
+- **No shared world.** Every scene has its own backdrop and its own scale. Nothing seen in one scene is still there, in its place, in the next.
+- **No tonal arc.** The film is one brightness and one temperature from start to end, so nothing in the picture says the story moved.
+- **The accent overspent.** The accent color is on a dot, a tag, a word, a ring and a button in the same frame, so it marks nothing.
+- **Finish leaks.** A label that is hard to read, a color that turns muddy on its ground, a seam: small, but each one says "template" louder at full size.
+
+It came back from a blind critique of one film's stills, after three polish passes on that film had stopped improving it, and the three changes that answered it are the next three sections. Polish could not have found it: every scene passed on its own.
+
+## Tone carries the plot
+
+Give the film a tonal arc and let it carry the story's turns: dark for the problem, a mid tone for the product at work, daylight for the resolution, say. The change happens on a beat that matters (the drop, the reveal), as light changing in one world rather than a cut to a new backdrop, and it happens two or three times in a film, not per scene. A viewer with the sound off can then tell where in the story they are from the frame's brightness alone. With a shared 3D world (`3d-world.md`) a tone is a property of the world: ground, dots, light and edges mixed together.
+
+A tonal arc changes which colors work: a palette tuned on one ground fails on another. Measure every text-on-color pair on every ground it meets (`self-check.md`, "What to check in each still").
+
+## Type becomes composition
+
+Large type is a shape in the frame, not a caption under it. Set the headline big (100 to 190 px on a 1080 frame, one weight, no italic, no colored word), place it as a block against the picture (flush left on the grid's margin, or lower right against an object upper left), and let size, line breaks and placement carry emphasis. Each line enters masked by its own edge, words rising out of the line on a slight tilt with a short stagger, lines a half beat apart; the same move in every scene (`animation-patterns.md`, "Text moves through one primitive"). A headline over a slab is a slide; a line laid against the world is a frame.
+
+## One accent per frame
+
+The accent color marks one thing per frame: the warning, the pin, the one row that matters. When a second element wants it, give that one white, weight or size instead. The accent then carries meaning across the film (where it appears, the story is), and it stays saturated against the tones. An accent that reads muddy on one of the film's grounds (a red on a mid gray turning brown, for example) goes on a white bed there or does not go there.
+
 ## Reference by reason
 
 Use references to answer a specific uncertainty: preserving identity, making collaboration visible, introducing expressive type or sustaining a reading hold. Borrow the principle and reconstruct it in the product's language. Do not combine the union of every admired transition.

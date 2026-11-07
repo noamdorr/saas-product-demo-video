@@ -6,6 +6,7 @@ import { loadFont as loadEditorial } from "@remotion/google-fonts/RobotoSlab";
 import { Composition } from "remotion";
 import { Master } from "./Master";
 import { ExampleScene } from "./scenes/ExampleScene";
+import { SubClock } from "./SubClock";
 import { canvas } from "./theme";
 import { FPS, SCENES, TOTAL_FRAMES } from "./timing";
 
@@ -16,6 +17,13 @@ loadDisplay("normal", { weights: ["600", "700", "800"], subsets: ["latin"] });
 loadUi("normal", { weights: ["400", "500", "600", "700"], subsets: ["latin"] });
 // Roboto Slab ships no italic. Load "normal" and set fontStyle: "italic" where it is used.
 loadEditorial("normal", { weights: ["400", "500", "600"], subsets: ["latin"] });
+
+/** The film with no sound, on the shutter's clock. tools/mb renders this for real motion blur. */
+const MasterSub: React.FC<{ times: number[] | null }> = ({ times }) => (
+  <SubClock times={times}>
+    <Master sfx={false} music={false} />
+  </SubClock>
+);
 
 export const RemotionRoot: React.FC = () => (
   <>
@@ -34,6 +42,22 @@ export const RemotionRoot: React.FC = () => (
       id="Master-NoSfx"
       component={Master}
       defaultProps={{ sfx: false }}
+      durationInFrames={TOTAL_FRAMES}
+      fps={FPS}
+      width={canvas.width}
+      height={canvas.height}
+    />
+    {/* Real motion blur: frame i is the film at times[i], which may fall between
+        frames. tools/mb renders it; references/render-export.md has the commands.
+        Remotion clamps the clock to a composition's length, so with `times` it has to
+        reach past the film's last frame however few samples a chunk holds (gotchas.md 82). */}
+    <Composition
+      id="Master-Sub"
+      component={MasterSub}
+      defaultProps={{ times: null as number[] | null }}
+      calculateMetadata={({ props }) => ({
+        durationInFrames: props.times ? Math.max(TOTAL_FRAMES + 1, props.times.length) : TOTAL_FRAMES,
+      })}
       durationInFrames={TOTAL_FRAMES}
       fps={FPS}
       width={canvas.width}

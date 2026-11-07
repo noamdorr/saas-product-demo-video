@@ -13,6 +13,10 @@
 //
 // The sound effects are the master's SoundLayer (one cue table for both cuts);
 // `sfx` false renders the music only, as Master-NoSfx does for the 16:9.
+//
+// Real motion blur (references/render-export.md) renders it through a SubClock
+// composition of its own, as Root.tsx does for Master-Sub, with sfx and music
+// false: `node tools/mb/sample.mjs --comp MasterVertical-Sub ...`.
 
 import { Audio } from "@remotion/media";
 import { AbsoluteFill, Sequence, interpolate, staticFile, useCurrentFrame } from "remotion";
@@ -26,7 +30,7 @@ import { AUDIO_TRIM, SCENES, SOUNDTRACK, TOTAL_FRAMES } from "../timing";
 const MUSIC_VOLUME = 0.6;
 const FADE_OUT_FRAMES = 18;
 
-export const MasterVertical: React.FC<{ sfx?: boolean }> = ({ sfx = true }) => {
+export const MasterVertical: React.FC<{ sfx?: boolean; music?: boolean }> = ({ sfx = true, music = true }) => {
   const frame = useCurrentFrame();
   const volume = interpolate(
     frame,
@@ -37,7 +41,7 @@ export const MasterVertical: React.FC<{ sfx?: boolean }> = ({ sfx = true }) => {
 
   return (
     <AbsoluteFill style={{ background: colors.background }}>
-      {SOUNDTRACK && (
+      {SOUNDTRACK && music && (
         <Audio src={staticFile(SOUNDTRACK)} trimBefore={AUDIO_TRIM} volume={volume} />
       )}
       <SoundLayer sfx={sfx} />
