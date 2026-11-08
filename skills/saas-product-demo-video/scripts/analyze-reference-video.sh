@@ -10,7 +10,7 @@
 #   → writes references/linear-launch.md
 #
 # Setup:
-#   GEMINI_API_KEY must be set in environment OR in the current project .env.
+#   GEMINI_API_KEY must be exported in the environment by the caller.
 #   Get a free key at https://aistudio.google.com/apikey
 #
 # Requirements:
@@ -41,22 +41,27 @@ REPO_DIR="$PWD"
 PROMPT_FILE="$SCRIPT_DIR/reference-video-prompt.md"
 OUT_DIR="$REPO_DIR/references"
 OUT_FILE="$OUT_DIR/$NAME.md"
-ENV_FILE="$REPO_DIR/.env"
 
+check_output_path() {
+  if [[ -L "$OUT_DIR" || -L "$OUT_FILE" ]]; then
+    echo "ERROR: reference output paths must not be symbolic links." >&2
+    exit 1
+  fi
+}
+check_output_path
 mkdir -p "$OUT_DIR"
 
-# --- Load env (no-op if already set) ---
-if [[ -z "${GEMINI_API_KEY:-}" && -f "$ENV_FILE" ]]; then
-  set -a
-  # shellcheck disable=SC1090
-  source "$ENV_FILE"
-  set +a
-fi
+# Credentials must be supplied by the caller, never loaded from project files.
 
 if [[ -z "${GEMINI_API_KEY:-}" ]]; then
   echo "ERROR: GEMINI_API_KEY not set." >&2
   echo "  Get a key: https://aistudio.google.com/apikey" >&2
-  echo "  Then: export GEMINI_API_KEY=... (or add to $ENV_FILE)" >&2
+  echo "  Then: export GEMINI_API_KEY=..." >&2
+  exit 1
+fi
+
+if [[ ! "$GEMINI_API_KEY" =~ ^[A-Za-z0-9_-]+$ ]]; then
+  echo "ERROR: GEMINI_API_KEY contains characters that cannot be passed safely." >&2
   exit 1
 fi
 
@@ -91,10 +96,11 @@ echo "Output:    $OUT_FILE"
 echo
 
 # --- Call Gemini ---
-RAW_RESPONSE="$(curl -sS --fail-with-body \
+RAW_RESPONSE="$(printf 'X-goog-api-key: %s\n' "$GEMINI_API_KEY" | \
+  curl -sS --fail-with-body \
   "https://generativelanguage.googleapis.com/v1beta/models/$MODEL:generateContent" \
   -H "Content-Type: application/json" \
-  -H "X-goog-api-key: $GEMINI_API_KEY" \
+  --header @- \
   -X POST \
   -d "$REQ_BODY")" || {
     echo "ERROR: API call failed:" >&2
@@ -122,6 +128,8 @@ print(text)
 ')"
 
 # --- Write output with frontmatter ---
+# Recheck in case anything replaced the output paths since the first check.
+check_output_path
 {
   echo "---"
   echo "source: $URL"

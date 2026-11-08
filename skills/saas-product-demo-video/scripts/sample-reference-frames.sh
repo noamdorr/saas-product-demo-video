@@ -31,11 +31,31 @@ fi
 
 SRC="$1"
 NAME="$2"
+if [[ ! "$NAME" =~ ^[a-zA-Z0-9][a-zA-Z0-9_-]*$ ]]; then
+  echo "ERROR: short-name must contain only letters, digits, underscores or hyphens." >&2
+  exit 2
+fi
 MAX_SHEETS="${MAX_SHEETS:-12}"
 MAX_CUTS="${MAX_CUTS:-24}"
 STRIP_WIDTH="${STRIP_WIDTH:-320}"
 CUT_FLOOR="${CUT_FLOOR:-0.03}"
 CUT_RATIO="${CUT_RATIO:-8}"
+
+# Check tunables before using them in filters or numeric calculations.
+if ! python3 - "$MAX_SHEETS" "$MAX_CUTS" "$STRIP_WIDTH" "$CUT_FLOOR" "$CUT_RATIO" <<'PY'
+import math, sys
+try:
+    if any(int(v) <= 0 for v in sys.argv[1:4]):
+        raise ValueError()
+    if any(not math.isfinite(float(v)) or float(v) <= 0 for v in sys.argv[4:]):
+        raise ValueError()
+except ValueError:
+    print("ERROR: sampling limits must be positive numbers (counts and width must be integers).", file=sys.stderr)
+    sys.exit(2)
+PY
+then
+  exit 2
+fi
 
 for tool in ffmpeg ffprobe; do
   if ! command -v "$tool" >/dev/null 2>&1; then
@@ -44,7 +64,12 @@ for tool in ffmpeg ffprobe; do
   fi
 done
 
-OUT_DIR="$(pwd)/references/frames-$NAME"
+REFERENCES="$(pwd -P)/references"
+if [[ -L "$REFERENCES" ]]; then
+  echo "ERROR: references must not be a symbolic link." >&2
+  exit 2
+fi
+OUT_DIR="$REFERENCES/frames-$NAME"
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 
@@ -79,9 +104,18 @@ STAGE="$WORK/out"
 mkdir -p "$STAGE"
 
 # --- Overview sheets: 12 frames each (4x3), at most MAX_SHEETS sheets ---
-FPS="$(python3 -c "
-d=float('$DURATION'); m=int('$MAX_SHEETS')
-print(f'{min(2.0, (m*12)/max(d,1.0)):.4f}')")"
+FPS="$(python3 - "$DURATION" "$MAX_SHEETS" <<'PY'
+import math, sys
+try:
+    d = float(sys.argv[1]); m = int(sys.argv[2])
+    if not math.isfinite(d) or d <= 0:
+        raise ValueError()
+except ValueError:
+    print("ERROR: video duration must be a positive finite number.", file=sys.stderr)
+    sys.exit(2)
+print(f'{min(2.0, (m*12)/max(d,1.0)):.4f}')
+PY
+)"
 ffmpeg -v error -i "$VIDEO" -vf "fps=$FPS,scale=480:-2,tile=4x3" -q:v 4 "$STAGE/overview-%03d.jpg"
 
 # --- Cut detection ---
@@ -145,7 +179,7 @@ PY
 i=0
 while read -r T; do
   i=$((i+1))
-  START="$(python3 -c "print(f'{max(0.0, $T-0.2):.3f}')")"
+  START="$(python3 -c 'import sys; print(f"{max(0.0, float(sys.argv[1])-0.2):.3f}")' "$T")"
   ffmpeg -v error -ss "$START" -t 0.4 -i "$VIDEO" -vf "fps=20,scale=$STRIP_WIDTH:-2,tile=8x1" -frames:v 1 -q:v 4 \
     "$STAGE/cut-$(printf '%02d' "$i").jpg" || true
 done < "$WORK/picked.txt"
@@ -188,8 +222,13 @@ else:
     print("No sharp changes found. The video may be one continuous move, or cut with dissolves. Work from the overview sheets.")
 PY
 
-rm -rf "$OUT_DIR"
-mkdir -p "$(dirname "$OUT_DIR")"
+# Recheck the parent immediately before replacing an existing sample directory.
+if [[ -L "$REFERENCES" ]]; then
+  echo "ERROR: references must not be a symbolic link." >&2
+  exit 2
+fi
+rm -rf -- "$OUT_DIR"
+mkdir -p "$REFERENCES"
 mv "$STAGE" "$OUT_DIR"
 
 echo "Wrote $(ls "$OUT_DIR" | wc -l | tr -d ' ') files to $OUT_DIR"
